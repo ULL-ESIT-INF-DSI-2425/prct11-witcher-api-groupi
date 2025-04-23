@@ -8,3 +8,4 @@
 ### MARTA ROSA CORDERO
 
 [![Tests](https://github.com/ULL-ESIT-INF-DSI-2425/prct11-witcher-api-groupi/actions/workflows/ci.yml/badge.svg)](https://github.com/ULL-ESIT-INF-DSI-2425/prct11-witcher-api-groupi/actions/workflows/ci.yml)
+[![Coverage Status](https://coveralls.io/repos/github/ULL-ESIT-INF-DSI-2425/prct11-witcher-api-groupi/badge.svg?branch=main)](https://coveralls.io/github/ULL-ESIT-INF-DSI-2425/prct11-witcher-api-groupi?branch=main)
