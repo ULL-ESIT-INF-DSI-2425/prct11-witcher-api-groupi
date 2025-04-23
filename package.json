@@ -24,6 +24,7 @@
   "homepage": "https://github.com/ULL-ESIT-INF-DSI-2425/prct11-witcher-api-groupi#readme",
   "devDependencies": {
     "@eslint/js": "^9.25.1",
+    "@vitest/coverage-v8": "^3.1.2",
     "eslint": "^9.25.1",
     "eslint-config-prettier": "^10.1.2",
     "eslint-plugin-tsdoc": "^0.4.0",

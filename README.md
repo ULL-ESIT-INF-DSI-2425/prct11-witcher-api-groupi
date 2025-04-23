@@ -6,3 +6,5 @@
 ### INÉS CABRERA BETANCOR
 ### ESTELA FERNÁNDEZ TRUJILLO
 ### MARTA ROSA CORDERO
+
+[![Tests](https://github.com/ULL-ESIT-INF-DSI-2425/prct11-witcher-api-groupi/actions/workflows/ci.yml/badge.svg)](https://github.com/ULL-ESIT-INF-DSI-2425/prct11-witcher-api-groupi/actions/workflows/ci.yml)
