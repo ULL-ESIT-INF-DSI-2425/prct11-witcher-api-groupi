@@ -12,6 +12,7 @@ app.use(express.json());
 app.use(userRouter);
 app.use(merchantRouter);
 app.use(hunterRouter);
+// Todas antes de default para que no entre directamente
 app.use(defaultRouter);
 
 const port = process.env.PORT || 3000;

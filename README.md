@@ -9,3 +9,7 @@
 
 [![Tests](https://github.com/ULL-ESIT-INF-DSI-2425/prct11-witcher-api-groupi/actions/workflows/ci.yml/badge.svg)](https://github.com/ULL-ESIT-INF-DSI-2425/prct11-witcher-api-groupi/actions/workflows/ci.yml)
 [![Coverage Status](https://coveralls.io/repos/github/ULL-ESIT-INF-DSI-2425/prct11-witcher-api-groupi/badge.svg?branch=main)](https://coveralls.io/github/ULL-ESIT-INF-DSI-2425/prct11-witcher-api-groupi?branch=main)
+
+### NECESARIO PARA PODER ABRIR BASE DE DATOS
+Poner el siguiente comando en la terminal:
+sudo /home/usuario/mongodb/bin/mongod --dbpath /home/usuario/mongodb-data/
