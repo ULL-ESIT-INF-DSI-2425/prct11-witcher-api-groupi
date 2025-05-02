@@ -4,13 +4,15 @@ import './db/mongoose.js';
 import { defaultRouter } from './routers/default.js';
 import { userRouter } from './routers/user.js';
 import { merchantRouter } from './routers/merchant.js';
+import { hunterRouter } from './routers/hunter.js';
 
 const app = express();
 app.use(express.json());
-app.use(defaultRouter);
+
 app.use(userRouter);
 app.use(merchantRouter);
-
+app.use(hunterRouter);
+app.use(defaultRouter);
 
 const port = process.env.PORT || 3000;
 
