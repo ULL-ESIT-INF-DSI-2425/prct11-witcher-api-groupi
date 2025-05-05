@@ -237,7 +237,7 @@ goodRouter.patch("/goods/:username/:name", async (req, res) => {
  * @param username - Nombre de usuario
  * @param id - Id del bien
  */
-goodRouter.delete("goods/:username/:id", async (req, res) => {
+goodRouter.delete("/goods/:username/:id", async (req, res) => {
   try {
     const user = await User.findOne({
       username: req.params.username,
