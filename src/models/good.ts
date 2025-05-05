@@ -9,6 +9,7 @@ interface GoodDocumentInterface extends Document {
   weight?: number,
   value_in_crowns: number
   owner: UserDocumentInterface,
+  stock: number
 }
 
 const GoodSchema = new Schema<GoodDocumentInterface>({
@@ -48,6 +49,16 @@ const GoodSchema = new Schema<GoodDocumentInterface>({
     type: Schema.Types.ObjectId,
     required: true,
     ref: 'User'
+  },
+  stock: {
+    type: Number,
+    default: 0,
+    min: 0, // Para evitar valores negativos
+    max: 1000, // Limitar el stock a un máximo
+    validate: {
+      validator: Number.isInteger,
+      message: 'El stock debe ser un número entero'
+    }
   }
 });
 export const Good = model<GoodDocumentInterface>('Good', GoodSchema);
