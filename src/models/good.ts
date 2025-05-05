@@ -1,6 +1,6 @@
 import { Document, Schema, model } from 'mongoose';
 import { UserDocumentInterface } from './user.js';
-import validator from 'validator';
+// import validator from 'validator';
 
 interface GoodDocumentInterface extends Document {
   name: string,
@@ -18,11 +18,11 @@ const GoodSchema = new Schema<GoodDocumentInterface>({
     unique: true,
     required: true,
     trim: true,
-    validate: (value: string) => {
-    if (!validator.default.isAlphanumeric(value)) {
-        throw new Error('El nombre del cliente sólo puede contener caracteres alfanuméricos');
-      }
-    },
+    // validate: (value: string) => {
+    // if (!validator.default.isAlphanumeric(value)) {
+    //     throw new Error('El nombre del bien sólo puede contener caracteres alfanuméricos');
+    //   }
+    // },
   },
   description: {
     type: String,

@@ -174,3 +174,97 @@ goodRouter.get("/goods/:username/:description", async (req, res) => {
     res.status(500).send(error);
   }
 });
+
+/**
+ * Metodo para actualizar las caracteristicas de un bien
+ * @param username - Nombre de usuario
+ * @param name - Nombre del bien
+ */
+goodRouter.patch("/goods/:username/:name", async (req, res) => {
+  try {
+    const user = await User.findOne({
+      username: req.params.username,
+    });
+
+    if (!user) {
+      res.status(404).send({
+        error: "No se encontró al usuario",
+      });
+    } else {
+      const allowedUpdates = [ "name", "description", "material", "stock"];
+      const actualUpdates = Object.keys(req.body);
+      const isValidUpdate = actualUpdates.every((update) =>
+        allowedUpdates.includes(update),
+      );
+
+      if(!isValidUpdate) {
+        res.status(400).send({
+          error: "No se puede actualizar el bien con los campos dados",
+        });
+      } else {
+        const good = await Good.findOneAndUpdate(
+          {
+            name: req.params.name,
+            owner: user._id,
+          },
+          req.body,
+          {
+            new: true, // Devuelve el bien actualizado
+            runValidators: true, // Valida los datos antes de guardarlos
+          },
+        ).populate({
+          path: "owner",
+          select: ["username"],
+        });
+
+        if (good) { // Si se encuentra el bien, se devuelve
+          res.send(good);
+        }
+        else {
+          res.status(404).send({
+            error: "No se encontró el bien",
+          });
+        }
+      }
+    }
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+/**
+ * Método para eliminar un bien de un usuario
+ * @param username - Nombre de usuario
+ * @param id - Id del bien
+ */
+goodRouter.delete("goods/:username/:id", async (req, res) => {
+  try {
+    const user = await User.findOne({
+      username: req.params.username,
+    });
+
+    if (!user) {
+      res.status(404).send({
+        error: "No se encontró al usuario",
+      });
+    } else {
+      const good = await Good.findOneAndDelete({
+        _id: req.params.id,
+        owner: user._id,
+      }).populate({
+        path: "owner",
+        select: ["username"],
+      });
+
+      if (good) { // Si se encuentra el bien, se devuelve
+        res.send(good);
+      } else {
+        res.status(404).send({
+          error: "No se encontró el bien",
+        });
+      }
+    }
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
