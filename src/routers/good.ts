@@ -22,9 +22,7 @@ goodRouter.post("/goods", async (req, res) => {
  */
 goodRouter.get("/goods/:id", async (req, res) => {
   try {
-    const good = await Good.findOne({
-      _id: req.params.id
-    })
+    const good = await Good.findById(req.params.id);
     if (good) { // Si se encuentra el bien, se devuelve
       res.send(good);
     } else {
@@ -122,9 +120,7 @@ goodRouter.patch("/goods/:name", async (req, res) => {
  */
 goodRouter.delete("/goods/:id", async (req, res) => {
   try {
-    const good = await Good.findOneAndDelete({
-      _id: req.params.id
-    });
+    const good = await Good.findByIdAndDelete(req.params.id);
 
     if (good) { // Si se encuentra el bien, se devuelve
       res.send(good);

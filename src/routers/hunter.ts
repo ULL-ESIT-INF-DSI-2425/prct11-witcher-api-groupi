@@ -14,7 +14,7 @@ hunterRouter.post("/hunters", async (req, res) => {
 
 hunterRouter.get("/hunters", async (req, res) => {
   try {
-    const name = typeof req.query.name === "string" ? req.query.name : null;
+    const name = req.query.name?{name: req.query.name.toString()}:{};
     if (name) {
       const hunter = await Hunter.findOne({
         name: name,
@@ -36,9 +36,7 @@ hunterRouter.get("/hunters", async (req, res) => {
 
 hunterRouter.get("/hunters/:id", async (req, res) => {
   try {
-    const hunter = await Hunter.findOne({
-      _id: req.params.id
-    });
+    const hunter = await Hunter.findById(req.params.id);
     if (hunter) {
       res.send(hunter);
     } else {
@@ -93,10 +91,8 @@ hunterRouter.patch("/hunters/:id", async (req, res) => {
         error: "La actualización no está permitida",
       });
     } else {
-      const hunter = await Hunter.findOneAndUpdate(
-        {
-          _id: req.params.id,
-        },
+      const hunter = await Hunter.findByIdAndUpdate(
+        req.params.id,
         req.body,
         {
           new: true,
@@ -117,7 +113,7 @@ hunterRouter.patch("/hunters/:id", async (req, res) => {
 
 hunterRouter.patch("/hunters", async (req, res) => {
   try {
-    const name = typeof req.query.name === "string" ? req.query.name : null;
+    const name = req.query.name?{name: req.query.name.toString()}:{};
     if (!name) {
       res.status(400).send({
         error: "Falta el parámetro de búsqueda 'name' en query string",
@@ -161,10 +157,7 @@ hunterRouter.patch("/hunters", async (req, res) => {
 
 hunterRouter.delete("/hunters/:id", async (req, res) => {
   try {
-    const hunter = await Hunter.findOneAndDelete({
-      _id: req.params.id,
-    });
-
+    const hunter = await Hunter.findByIdAndDelete(req.params.id);
     if (hunter) {
       res.send(hunter);
     } else {
@@ -177,7 +170,7 @@ hunterRouter.delete("/hunters/:id", async (req, res) => {
 
 hunterRouter.delete("/hunters", async (req, res) => {
   try {
-    const name = typeof req.query.name === "string" ? req.query.name : null;
+    const name = req.query.name?{name: req.query.name.toString()}:{};
     if (!name) {
       res.status(400).send({
         error: "Falta el parámetro de búsqueda 'name' en query string",

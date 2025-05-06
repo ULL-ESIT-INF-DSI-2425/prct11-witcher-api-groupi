@@ -19,11 +19,9 @@ merchantRouter.post("/merchants", async (req, res) => {
  */
 merchantRouter.get("/merchants", async (req, res) => {
   try {
-    const name = typeof req.query.name === "string" ? req.query.name : null;
+    const name = req.query.name?{name: req.query.name.toString()}:{};
     if (name) {
-      const merchant = await Merchant.find({
-        name: name,
-      });
+      const merchant = await Merchant.find(name);
       if (merchant.length !== 0) {
         res.send(merchant);
       } else {
@@ -44,10 +42,7 @@ merchantRouter.get("/merchants", async (req, res) => {
  */
 merchantRouter.get("/merchants/:id", async (req, res) => {
   try {
-    const merchant = await Merchant.findOne({
-      _id: req.params.id,
-    })
-
+    const merchant = await Merchant.findById(req.params.id);
     if (merchant) {
       res.send(merchant);
     } else {
@@ -116,10 +111,8 @@ merchantRouter.patch("/merchants/:id", async (req, res) => {
         error: "La actualización no está permitida",
       });
     } else {
-      const merchant = await Merchant.findOneAndUpdate(
-        {
-          _id: req.params.id,
-        },
+      const merchant = await Merchant.findByIdAndUpdate(
+        req.params.id,
         req.body,
         {
           new: true,
@@ -145,7 +138,7 @@ merchantRouter.patch("/merchants/:id", async (req, res) => {
  */
 merchantRouter.patch("/merchants", async (req, res) => {
   try {
-    const name = typeof req.query.name === "string" ? req.query.name : null;
+    const name = req.query.name?{name: req.query.name.toString()}:{};
     if (!name) {
       res.status(400).send({
         error: "Falta el parámetro de búsqueda 'name' en query string",
@@ -192,9 +185,7 @@ merchantRouter.patch("/merchants", async (req, res) => {
  */
 merchantRouter.delete("/merchants/:id", async (req, res) => {
   try {
-    const merchant = await Merchant.findOneAndDelete({
-      _id: req.params.id,
-    });
+    const merchant = await Merchant.findByIdAndDelete(req.params.id);
     if (merchant) {
       res.send(merchant);
     } else {
@@ -213,7 +204,7 @@ merchantRouter.delete("/merchants/:id", async (req, res) => {
  */
 merchantRouter.delete("/merchants", async (req, res) => {
   try {
-    const name = typeof req.query.name === "string" ? req.query.name : null;
+    const name = req.query.name?{name: req.query.name.toString()}:{};
     if (!name) {
       res.status(400).send({
         error: "Falta el parámetro de búsqueda 'name' en query string",
