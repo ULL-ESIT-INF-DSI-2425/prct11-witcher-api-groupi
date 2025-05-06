@@ -19,10 +19,10 @@ merchantRouter.post("/merchants", async (req, res) => {
  */
 merchantRouter.get("/merchants", async (req, res) => {
   try {
-    const name = req.query.name?{name: req.query.name.toString()}:{};
+    const name = req.query.name?.toString();
     if (name) {
-      const merchant = await Merchant.find(name);
-      if (merchant.length !== 0) {
+      const merchant = await Merchant.findOne({name: name});
+      if (merchant) {
         res.send(merchant);
       } else {
         res.status(404).send({
@@ -58,7 +58,7 @@ merchantRouter.get("/merchants/:id", async (req, res) => {
  * Método para obtener mercaderes
  * @param location - Localización del mercader 
  */
-merchantRouter.get("/merchants/:location", async (req, res) => {
+merchantRouter.get("/merchants/location/:location", async (req, res) => {
   try {
     const merchant = await Merchant.findOne({
       location: req.params.location,
@@ -78,7 +78,7 @@ merchantRouter.get("/merchants/:location", async (req, res) => {
  * Método para obtener mercaderes
  * @param type - Tipo del mercader 
  */
-merchantRouter.get("/merchants/:type", async (req, res) => {
+merchantRouter.get("/merchants/type/:type", async (req, res) => {
   try {
     const merchant = await Merchant.findOne({
       type: req.params.type,
@@ -138,7 +138,7 @@ merchantRouter.patch("/merchants/:id", async (req, res) => {
  */
 merchantRouter.patch("/merchants", async (req, res) => {
   try {
-    const name = req.query.name?{name: req.query.name.toString()}:{};
+    const name = req.query.name?.toString();
     if (!name) {
       res.status(400).send({
         error: "Falta el parámetro de búsqueda 'name' en query string",
@@ -204,7 +204,7 @@ merchantRouter.delete("/merchants/:id", async (req, res) => {
  */
 merchantRouter.delete("/merchants", async (req, res) => {
   try {
-    const name = req.query.name?{name: req.query.name.toString()}:{};
+    const name = req.query.name?.toString();
     if (!name) {
       res.status(400).send({
         error: "Falta el parámetro de búsqueda 'name' en query string",

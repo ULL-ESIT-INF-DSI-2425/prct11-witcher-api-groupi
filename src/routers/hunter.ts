@@ -14,11 +14,9 @@ hunterRouter.post("/hunters", async (req, res) => {
 
 hunterRouter.get("/hunters", async (req, res) => {
   try {
-    const name = req.query.name?{name: req.query.name.toString()}:{};
+    const name = req.query.name?.toString();
     if (name) {
-      const hunter = await Hunter.findOne({
-        name: name,
-      });
+      const hunter = await Hunter.findOne({name: name});
       if (hunter) {
         res.send(hunter);
       } else {
@@ -47,7 +45,7 @@ hunterRouter.get("/hunters/:id", async (req, res) => {
   }
 });
 
-hunterRouter.get("/hunters/:location", async (req, res) => {
+hunterRouter.get("/hunters/location/:location", async (req, res) => {
   try {
     const hunter = await Hunter.findOne({
       location: req.params.location
@@ -62,7 +60,7 @@ hunterRouter.get("/hunters/:location", async (req, res) => {
   }
 });
 
-hunterRouter.get("/hunters/:race", async (req, res) => {
+hunterRouter.get("/hunters/race/:race", async (req, res) => {
   try {
     const hunter = await Hunter.findOne({
       race: req.params.race
@@ -113,7 +111,7 @@ hunterRouter.patch("/hunters/:id", async (req, res) => {
 
 hunterRouter.patch("/hunters", async (req, res) => {
   try {
-    const name = req.query.name?{name: req.query.name.toString()}:{};
+    const name = req.query.name?.toString();
     if (!name) {
       res.status(400).send({
         error: "Falta el parámetro de búsqueda 'name' en query string",
@@ -170,7 +168,7 @@ hunterRouter.delete("/hunters/:id", async (req, res) => {
 
 hunterRouter.delete("/hunters", async (req, res) => {
   try {
-    const name = req.query.name?{name: req.query.name.toString()}:{};
+    const name = req.query.name?.toString();
     if (!name) {
       res.status(400).send({
         error: "Falta el parámetro de búsqueda 'name' en query string",
