@@ -180,6 +180,8 @@ goodRouter.get("/goods/:username/:description", async (req, res) => {
  * @param username - Nombre de usuario
  * @param name - Nombre del bien
  */
+//IMPORTANTE! Es necesario que cuando se actualice un bien que ya está se deberá cambiar el stock y hacer comprobaciones como si el stock
+// esta vacío y no permitir < 0
 goodRouter.patch("/goods/:username/:name", async (req, res) => {
   try {
     const user = await User.findOne({

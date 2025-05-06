@@ -18,11 +18,6 @@ const GoodSchema = new Schema<GoodDocumentInterface>({
     unique: true,
     required: true,
     trim: true,
-    // validate: (value: string) => {
-    // if (!validator.default.isAlphanumeric(value)) {
-    //     throw new Error('El nombre del bien sólo puede contener caracteres alfanuméricos');
-    //   }
-    // },
   },
   description: {
     type: String,
