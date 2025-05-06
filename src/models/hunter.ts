@@ -5,7 +5,7 @@ import validator from 'validator';
 interface HunterDocumentInterface extends Document {
   name: string,
   location: string,
-  breed?: 'Humano' | 'Elfo' | 'Enano' | 'Hechicero',
+  race?: 'Humano' | 'Elfo' | 'Enano' | 'Hechicero',
   owner: UserDocumentInterface,
 }
 
@@ -26,7 +26,7 @@ const HunterSchema = new Schema<HunterDocumentInterface>({
     trim: true,
     required: true,
   },
-  breed: {
+  race: {
     type: String,
     trim: true,
     default: 'Humano',
