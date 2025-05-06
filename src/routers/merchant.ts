@@ -2,7 +2,10 @@ import express from 'express';
 import { Merchant } from '../models/merchant.js';
 import { User } from "../models/user.js";
 export const merchantRouter = express.Router();
-
+/**
+ * Método para crear un mercader
+ * @param username - Nombre de usuario que crea el mercader
+ */
 merchantRouter.post("/merchants/:username", async (req, res) => {
   try {
     const user = await User.findOne({
@@ -30,7 +33,11 @@ merchantRouter.post("/merchants/:username", async (req, res) => {
     res.status(500).send(error);
   }
 });
-
+/**
+ * Método para obtener mercaderes
+ * @param username - Nombre de usuario que obtiene los mercaderes
+ * @param name - Nombre del mercader utilizando una query string
+ */
 merchantRouter.get("/merchants/:username", async (req, res) => {
   try {
     const user = await User.findOne({
@@ -77,7 +84,11 @@ merchantRouter.get("/merchants/:username", async (req, res) => {
     res.status(500).send(error);
   }
 });
-
+/**
+ * Método para obtener mercaderes
+ * @param username - Nombre de usuario que obtiene los mercaderes
+ * @param id - Id del mercader 
+ */
 merchantRouter.get("/merchants/:username/:id", async (req, res) => {
   try {
     const user = await User.findOne({
@@ -109,7 +120,11 @@ merchantRouter.get("/merchants/:username/:id", async (req, res) => {
     res.status(500).send(error);
   }
 });
-
+/**
+ * Método para obtener mercaderes
+ * @param username - Nombre de usuario que obtiene los mercaderes
+ * @param location - Localización del mercader 
+ */
 merchantRouter.get("/merchants/:username/:location", async (req, res) => {
   try {
     const user = await User.findOne({
@@ -141,7 +156,11 @@ merchantRouter.get("/merchants/:username/:location", async (req, res) => {
     res.status(500).send(error);
   }
 });
-
+/**
+ * Método para obtener mercaderes
+ * @param username - Nombre de usuario que obtiene los mercaderes
+ * @param type - Tipo del mercader 
+ */
 merchantRouter.get("/merchants/:username/:type", async (req, res) => {
   try {
     const user = await User.findOne({
@@ -173,7 +192,11 @@ merchantRouter.get("/merchants/:username/:type", async (req, res) => {
     res.status(500).send(error);
   }
 });
-
+/**
+ * Método para actualizar un mercader
+ * @param username - Nombre de usuario que actualiza el mercader
+ * @param id - Id del mercader 
+ */
 merchantRouter.patch("/merchants/:username/:id", async (req, res) => {
   try {
     const user = await User.findOne({
@@ -225,7 +248,11 @@ merchantRouter.patch("/merchants/:username/:id", async (req, res) => {
   }
 });
 
-
+/**
+ * Método para actualizar un mercader
+ * @param username - Nombre de usuario que actualiza el mercader
+ * @param name - Nombre del mercader utilizando una query string
+ */
 merchantRouter.patch("/merchants/:username", async (req, res) => {
   try {
     const user = await User.findOne({
@@ -283,7 +310,11 @@ merchantRouter.patch("/merchants/:username", async (req, res) => {
     res.status(500).send(error);
   }
 });
-
+/**
+ * Método para borrar un mercader
+ * @param username - Nombre de usuario que borra el mercader
+ * @param id - Id del mercader 
+ */
 merchantRouter.delete("/merchants/:username/:id", async (req, res) => {
   try {
     const user = await User.findOne({
@@ -316,7 +347,11 @@ merchantRouter.delete("/merchants/:username/:id", async (req, res) => {
   }
 });
 
-
+/**
+ * Método para borrar un mercader
+ * @param username - Nombre de usuario que borra el mercader
+ * @param name - Nombre del mercader utilizando una query string
+ */
 merchantRouter.delete("/merchants/:username", async (req, res) => {
   try {
     const user = await User.findOne({
