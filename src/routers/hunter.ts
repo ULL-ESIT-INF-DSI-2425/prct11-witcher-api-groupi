@@ -1,7 +1,9 @@
 import express from 'express';
 import { Hunter } from '../models/hunter.js';
 export const hunterRouter = express.Router();
-
+/**
+ * Método para crear un cazador
+ */
 hunterRouter.post("/hunters", async (req, res) => {
   try {
     const hunter = new Hunter(req.body);
@@ -11,7 +13,10 @@ hunterRouter.post("/hunters", async (req, res) => {
     res.status(500).send(error);
   }
 });
-
+/**
+ * Método para obtener cazadores
+ * @param name - Nombre del cazador utilizando una query string
+ */
 hunterRouter.get("/hunters", async (req, res) => {
   try {
     const name = req.query.name?.toString();
@@ -31,7 +36,10 @@ hunterRouter.get("/hunters", async (req, res) => {
     res.status(500).send(error);
   }
 });
-
+/**
+ * Método para obtener cazadores
+ * @param id - Id del cazador 
+ */
 hunterRouter.get("/hunters/:id", async (req, res) => {
   try {
     const hunter = await Hunter.findById(req.params.id);
@@ -44,7 +52,10 @@ hunterRouter.get("/hunters/:id", async (req, res) => {
     res.status(500).send(error);
   }
 });
-
+/**
+ * Método para obtener cazadores
+ * @param location - Localización del cazador 
+ */
 hunterRouter.get("/hunters/location/:location", async (req, res) => {
   try {
     const hunter = await Hunter.findOne({
@@ -59,7 +70,10 @@ hunterRouter.get("/hunters/location/:location", async (req, res) => {
     res.status(500).send(error);
   }
 });
-
+/**
+ * Método para obtener cazadores
+ * @param race - Raza del cazador
+ */
 hunterRouter.get("/hunters/race/:race", async (req, res) => {
   try {
     const hunter = await Hunter.findOne({
@@ -75,7 +89,10 @@ hunterRouter.get("/hunters/race/:race", async (req, res) => {
     res.status(500).send(error);
   }
 });
-
+/**
+ * Método para actualizar un cazador
+ * @param id - Id del cazador
+ */
 hunterRouter.patch("/hunters/:id", async (req, res) => {
   try {
     const allowedUpdates = ["name", "location", "race"];
@@ -108,7 +125,10 @@ hunterRouter.patch("/hunters/:id", async (req, res) => {
     res.status(500).send(error);
   }
 });
-
+/**
+ * Método para actualizar un cazador
+ * @param name - Nombre del cazador utilizando una query string
+ */
 hunterRouter.patch("/hunters", async (req, res) => {
   try {
     const name = req.query.name?.toString();
@@ -152,7 +172,10 @@ hunterRouter.patch("/hunters", async (req, res) => {
     res.status(500).send(error);
   }
 });
-
+/**
+ * Método para borrar un cazador
+ * @param id - Id del cazador
+ */
 hunterRouter.delete("/hunters/:id", async (req, res) => {
   try {
     const hunter = await Hunter.findByIdAndDelete(req.params.id);
@@ -166,6 +189,10 @@ hunterRouter.delete("/hunters/:id", async (req, res) => {
   }
 });
 
+/**
+ * Método para borrar un cazador
+ * @param name - Nombre del cazador utilizando una query string
+ */
 hunterRouter.delete("/hunters", async (req, res) => {
   try {
     const name = req.query.name?.toString();
