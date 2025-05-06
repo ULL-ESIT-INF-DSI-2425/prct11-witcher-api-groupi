@@ -1,12 +1,10 @@
 import { Document, Schema, model } from 'mongoose';
-import { UserDocumentInterface } from './user.js';
 import validator from 'validator';
 
 interface MerchantDocumentInterface extends Document {
   name: string,
   location: string,
-  type?: 'Herrero' | 'Alquimista' | 'Mercader general',
-  owner: UserDocumentInterface,
+  type?: 'Herrero' | 'Alquimista' | 'Mercader general'
 }
 
 const MerchantSchema = new Schema<MerchantDocumentInterface>({
@@ -31,11 +29,6 @@ const MerchantSchema = new Schema<MerchantDocumentInterface>({
     trim: true,
     default: 'Herrero',
     enum:['Herrero','Alquimista','Mercader general'],
-  },
-  owner: {
-    type: Schema.Types.ObjectId,
-    required: true,
-    ref: 'User'
   }
 });
 export const Merchant = model<MerchantDocumentInterface>('Merchant', MerchantSchema);

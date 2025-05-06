@@ -1,341 +1,198 @@
 import express from 'express';
 import { Hunter } from '../models/hunter.js';
-import { User } from "../models/user.js";
 export const hunterRouter = express.Router();
 
-hunterRouter.post("/hunters/:username", async (req, res) => {
+hunterRouter.post("/hunters", async (req, res) => {
   try {
-    const user = await User.findOne({
-      username: req.params.username,
-    });
-
-    if (!user) {
-      res.status(404).send({
-        error: "No se encontró al usuario",
-      });
-    } else {
-      const hunter = new Hunter({
-        ...req.body,
-        owner: user._id,
-      });
-
-      await hunter.save();
-      await hunter.populate({
-        path: "owner",
-        select: ["username"],
-      });
-      res.status(201).send(hunter);
-    }
+    const hunter = new Hunter(req.body);
+    await hunter.save();
+    res.status(201).send(hunter);
   } catch (error) {
     res.status(500).send(error);
   }
 });
 
-hunterRouter.get("/hunters/:username", async (req, res) => {
+hunterRouter.get("/hunters", async (req, res) => {
   try {
-    const user = await User.findOne({
-      username: req.params.username,
-    });
-    if (!user) {
-      res.status(404).send({
-        error: "No se encontró al usuario",
-      });
-    } else {
-      const name = typeof req.query.name === "string" ? req.query.name : null;
-      if (name) {
-        const hunter = await Hunter.findOne({
-          owner: user._id,
-          name: name,
-        }).populate({
-          path: "owner",
-          select: ["username"],
-        });
-        if (hunter) {
-          res.send(hunter);
-        } else {
-          res.status(404).send({
-            error: "No se encontró al cazador por nombre",
-          });
-        }
-      } else {
-        const hunters = await Hunter.find({
-          owner: user._id,
-        }).populate({
-          path: "owner",
-          select: ["username"],
-        });
-        if (hunters.length !== 0) {
-          res.send(hunters);
-        } else {
-          res.status(404).send();
-        }
-      }
-    }
-  } catch (error) {
-    res.status(500).send(error);
-  }
-});
-
-hunterRouter.get("/hunters/:username/:id", async (req, res) => {
-  try {
-    const user = await User.findOne({
-      username: req.params.username,
-    });
-
-    if (!user) {
-      res.status(404).send({
-        error: "No se encontró al usuario",
-      });
-    } else {
+    const name = typeof req.query.name === "string" ? req.query.name : null;
+    if (name) {
       const hunter = await Hunter.findOne({
-        owner: user._id,
-        _id: req.params.id,
-      }).populate({
-        path: "owner",
-        select: ["username"],
-      });
-
-      if (hunter) {
-        res.send(hunter);
-      } else {
-        res.status(404).send();
-      }
-    }
-  } catch (error) {
-    res.status(500).send(error);
-  }
-});
-
-hunterRouter.get("/hunters/:username/:location", async (req, res) => {
-  try {
-    const user = await User.findOne({
-      username: req.params.username,
-    });
-
-    if (!user) {
-      res.status(404).send({
-        error: "No se encontró al usuario",
-      });
-    } else {
-      const hunter = await Hunter.findOne({
-        owner: user._id,
-        location: req.params.location,
-      }).populate({
-        path: "owner",
-        select: ["username"],
-      });
-
-      if (hunter) {
-        res.send(hunter);
-      } else {
-        res.status(404).send();
-      }
-    }
-  } catch (error) {
-    res.status(500).send(error);
-  }
-});
-
-hunterRouter.get("/hunters/:username/:race", async (req, res) => {
-  try {
-    const user = await User.findOne({
-      username: req.params.username,
-    });
-
-    if (!user) {
-      res.status(404).send({
-        error: "No se encontró al usuario",
-      });
-    } else {
-      const hunter = await Hunter.findOne({
-        owner: user._id,
-        race: req.params.race,
-      }).populate({
-        path: "owner",
-        select: ["username"],
-      });
-
-      if (hunter) {
-        res.send(hunter);
-      } else {
-        res.status(404).send();
-      }
-    }
-  } catch (error) {
-    res.status(500).send(error);
-  }
-});
-
-hunterRouter.patch("/hunters/:username/:id", async (req, res) => {
-  try {
-    const user = await User.findOne({
-      username: req.params.username,
-    });
-
-    if (!user) {
-      res.status(404).send({
-        error: "No se encontró al usuario",
-      });
-    } else {
-      const allowedUpdates = ["name", "location", "race"];
-      const actualUpdates = Object.keys(req.body);
-      const isValidUpdate = actualUpdates.every((update) =>
-        allowedUpdates.includes(update),
-      );
-
-      if (!isValidUpdate) {
-        res.status(400).send({
-          error: "La actualización no está permitida",
-        });
-      } else {
-        const hunter = await Hunter.findOneAndUpdate(
-          {
-            owner: user._id,
-            _id: req.params.id,
-          },
-          req.body,
-          {
-            new: true,
-            runValidators: true,
-          },
-        ).populate({
-          path: "owner",
-          select: ["username"],
-        });
-
-        if (hunter) {
-          res.send(hunter);
-        } else {
-          res.status(404).send();
-        }
-      }
-    }
-  } catch (error) {
-    res.status(500).send(error);
-  }
-});
-
-hunterRouter.patch("/hunters/:username", async (req, res) => {
-  try {
-    const user = await User.findOne({
-      username: req.params.username,
-    });
-
-    if (!user) {
-      res.status(404).send({
-        error: "No se encontró al usuario",
-      });
-    } else {
-      const name = typeof req.query.name === "string" ? req.query.name : null;
-      if (!name) {
-        res.status(400).send({
-          error: "Falta el parámetro de búsqueda 'name' en query string",
-        });
-      }
-
-      const allowedUpdates = ["name", "location", "race"];
-      const actualUpdates = Object.keys(req.body);
-      const isValidUpdate = actualUpdates.every((update) =>
-        allowedUpdates.includes(update),
-      );
-
-      if (!isValidUpdate) {
-        res.status(400).send({
-          error: "La actualización no está permitida",
-        });
-      } else {
-        const hunter = await Hunter.findOneAndUpdate(
-          {
-            owner: user._id,
-            name: name,
-          },
-          req.body,
-          {
-            new: true,
-            runValidators: true,
-          },
-        ).populate({
-          path: "owner",
-          select: ["username"],
-        });
-
-        if (hunter) {
-          res.send(hunter);
-        } else {
-          res.status(404).send({
-            error: "No se encontró el cazador para actualizar",
-          });
-        }
-      }
-    }
-  } catch (error) {
-    res.status(500).send(error);
-  }
-});
-
-hunterRouter.delete("/hunters/:username/:id", async (req, res) => {
-  try {
-    const user = await User.findOne({
-      username: req.params.username,
-    });
-
-    if (!user) {
-      res.status(404).send({
-        error: "No se encontró al usuario",
-      });
-    } else {
-      const hunter = await Hunter.findOneAndDelete({
-        owner: user._id,
-        _id: req.params.id,
-      }).populate({
-        path: "owner",
-        select: ["username"],
-      });
-
-      if (hunter) {
-        res.send(hunter);
-      } else {
-        res.status(404).send();
-      }
-    }
-  } catch (error) {
-    res.status(500).send(error);
-  }
-});
-
-hunterRouter.delete("/hunters/:username", async (req, res) => {
-  try {
-    const user = await User.findOne({
-      username: req.params.username,
-    });
-
-    if (!user) {
-      res.status(404).send({
-        error: "No se encontró al usuario",
-      });
-    } else {
-      const name = typeof req.query.name === "string" ? req.query.name : null;
-      if (!name) {
-        res.status(400).send({
-          error: "Falta el parámetro de búsqueda 'name' en query string",
-        });
-      }
-      const hunter = await Hunter.findOneAndDelete({
-        owner: user._id,
         name: name,
-      }).populate({
-        path: "owner",
-        select: ["username"],
       });
+      if (hunter) {
+        res.send(hunter);
+      } else {
+        res.status(404).send({
+          error: "No se encontró al cazador por nombre",
+        });
+      }
+    } else {
+      res.status(404).send();
+    }
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+hunterRouter.get("/hunters/:id", async (req, res) => {
+  try {
+    const hunter = await Hunter.findOne({
+      _id: req.params.id
+    });
+    if (hunter) {
+      res.send(hunter);
+    } else {
+      res.status(404).send();
+    }
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+hunterRouter.get("/hunters/:location", async (req, res) => {
+  try {
+    const hunter = await Hunter.findOne({
+      location: req.params.location
+    });
+    if (hunter) {
+      res.send(hunter);
+    } else {
+      res.status(404).send();
+    }   
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+hunterRouter.get("/hunters/:race", async (req, res) => {
+  try {
+    const hunter = await Hunter.findOne({
+      race: req.params.race
+    });
+
+    if (hunter) {
+      res.send(hunter);
+    } else {
+      res.status(404).send();
+    }  
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+hunterRouter.patch("/hunters/:id", async (req, res) => {
+  try {
+    const allowedUpdates = ["name", "location", "race"];
+    const actualUpdates = Object.keys(req.body);
+    const isValidUpdate = actualUpdates.every((update) =>
+      allowedUpdates.includes(update),
+    );
+
+    if (!isValidUpdate) {
+      res.status(400).send({
+        error: "La actualización no está permitida",
+      });
+    } else {
+      const hunter = await Hunter.findOneAndUpdate(
+        {
+          _id: req.params.id,
+        },
+        req.body,
+        {
+          new: true,
+          runValidators: true,
+        },
+      );
+
+      if (hunter) {
+        res.send(hunter);
+      } else {
+        res.status(404).send();
+      }
+    } 
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+hunterRouter.patch("/hunters", async (req, res) => {
+  try {
+    const name = typeof req.query.name === "string" ? req.query.name : null;
+    if (!name) {
+      res.status(400).send({
+        error: "Falta el parámetro de búsqueda 'name' en query string",
+      });
+    }
+
+    const allowedUpdates = ["name", "location", "race"];
+    const actualUpdates = Object.keys(req.body);
+    const isValidUpdate = actualUpdates.every((update) =>
+      allowedUpdates.includes(update),
+    );
+
+    if (!isValidUpdate) {
+      res.status(400).send({
+        error: "La actualización no está permitida",
+      });
+    } else {
+      const hunter = await Hunter.findOneAndUpdate(
+        {
+          name: name,
+        },
+        req.body,
+        {
+          new: true,
+          runValidators: true,
+        },
+      );
 
       if (hunter) {
         res.send(hunter);
       } else {
         res.status(404).send({
-          error: "No se encontró el cazador para eliminar",
+          error: "No se encontró el cazador para actualizar",
         });
       }
     }
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+hunterRouter.delete("/hunters/:id", async (req, res) => {
+  try {
+    const hunter = await Hunter.findOneAndDelete({
+      _id: req.params.id,
+    });
+
+    if (hunter) {
+      res.send(hunter);
+    } else {
+      res.status(404).send();
+    } 
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+hunterRouter.delete("/hunters", async (req, res) => {
+  try {
+    const name = typeof req.query.name === "string" ? req.query.name : null;
+    if (!name) {
+      res.status(400).send({
+        error: "Falta el parámetro de búsqueda 'name' en query string",
+      });
+    }
+    const hunter = await Hunter.findOneAndDelete({
+      name: name,
+    });
+    if (hunter) {
+      res.send(hunter);
+    } else {
+      res.status(404).send({
+        error: "No se encontró el cazador para eliminar",
+      });
+    } 
   } catch (error) {
     res.status(500).send(error);
   }

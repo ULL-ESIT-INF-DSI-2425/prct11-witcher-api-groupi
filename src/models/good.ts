@@ -1,5 +1,4 @@
 import { Document, Schema, model } from 'mongoose';
-import { UserDocumentInterface } from './user.js';
 // import validator from 'validator';
 
 interface GoodDocumentInterface extends Document {
@@ -8,7 +7,6 @@ interface GoodDocumentInterface extends Document {
   material?: 'Acero de Mahakam' | 'Cuero endurecido' | 'Esencia mágica' | 'Mutágenos de bestias antiguas',
   weight?: number,
   value_in_crowns: number
-  owner: UserDocumentInterface,
   stock: number
 }
 
@@ -39,11 +37,6 @@ const GoodSchema = new Schema<GoodDocumentInterface>({
     type: Number,
     trim: true,
     required: true
-  },
-  owner: {
-    type: Schema.Types.ObjectId,
-    required: true,
-    ref: 'User'
   },
   stock: {
     type: Number,

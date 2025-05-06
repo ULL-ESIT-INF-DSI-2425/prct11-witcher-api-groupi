@@ -1,14 +1,11 @@
 import { Document, Schema, model } from 'mongoose';
-import { UserDocumentInterface } from './user.js';
 import validator from 'validator';
 
 interface HunterDocumentInterface extends Document {
   name: string,
   location: string,
-  race?: 'Humano' | 'Elfo' | 'Enano' | 'Hechicero',
-  owner: UserDocumentInterface,
+  race?: 'Humano' | 'Elfo' | 'Enano' | 'Hechicero'
 }
-
 const HunterSchema = new Schema<HunterDocumentInterface>({
   name: {
     type: String,
@@ -31,11 +28,6 @@ const HunterSchema = new Schema<HunterDocumentInterface>({
     trim: true,
     default: 'Humano',
     enum:['Humano','Elfo','Enano','Hechicero'],
-  },
-  owner: {
-    type: Schema.Types.ObjectId,
-    required: true,
-    ref: 'User'
   }
 });
 export const Hunter = model<HunterDocumentInterface>('Hunter', HunterSchema);
