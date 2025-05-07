@@ -1,8 +1,8 @@
-import { describe, test, beforeEach, expect, vi } from "vitest";
+import { describe, test, beforeEach, expect } from "vitest";
 import request from "supertest";
 import { app } from "../src/api.js"
 import { Hunter } from "../src/models/hunter.js"
-vi.setConfig({testTimeout: 50000});
+
 const firstHunter = {
   name: "Adolfo",
   location: "Islandia",
