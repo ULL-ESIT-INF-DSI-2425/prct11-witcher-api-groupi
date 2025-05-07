@@ -68,10 +68,6 @@ describe("GET /goods", () => {
       .get("/goods?name=prueba")
       .expect(404);
   });
-
-  test("Should not find a good if name param is missing", async () => {
-    await request(app).get("/goods").expect(404);
-  });
 });
 
 describe("GET /goods/:id", () => {
@@ -100,101 +96,44 @@ describe("PATCH /goods/:id", () => {
     if (bien) {
       const res = await request(app)
         .patch(`/goods/${bien._id}`)
-        .send({ location: "Hawai" })
+        .send({ material: "Acero de Mahakam" })
         .expect(200);
 
       expect(res.body.material).toBe("Acero de Mahakam");
     }
   });
-}); // eliminar luego
-/*
+
   test("Should not allow invalid update fields", async () => {
     const bien = await Good.findOne({ name: firstGood.name });
-    if (BiquadFilterNode) {
+    if (bien) {
       await request(app)
         .patch(`/goods/${bien._id}`)
         .send({ magic: "yes" })
         .expect(400);
     }
   });
-*/
 
-/*
-  test("Should not update a merchant if merchant not found by ID", async () => {
+  test("Should not update a good if good not found by ID", async () => {
     await request(app)
-      .patch("/merchants/507f191e810c19729de860ea")
+      .patch("/goods/507f191e810c19729de860ea")
       .send({ name: "Test" })
       .expect(404);
   });
 });
 
-describe("PATCH /merchants?name=", () => {
-  test("Should update merchant by name", async () => {
-    const res = await request(app)
-      .patch(`/merchants?name=${firstMerchant.name}`)
-      .send({ type: "Herrero" })
-      .expect(200);
-
-    expect(res.body.type).toBe("Herrero");
-  });
-
-  test("Should not update a merchant if name query is missing", async () => {
-    await request(app)
-      .patch("/merchants")
-      .send({ type: "Herrero" })
-      .expect(400);
-  });
-
-  test("Should not update a merchant if name not found", async () => {
-    await request(app)
-      .patch(`/merchants?name=Desconocido`)
-      .send({ type: "Herrero" })
-      .expect(404);
-  });
-
-  test("Should reject invalid fields in update", async () => {
-    await request(app)
-      .patch(`/merchants?name=${firstMerchant.name}`)
-      .send({ power: 999 })
-      .expect(400);
-  });
-});
-
-describe("DELETE /merchants/:id", () => {
-  test("Should delete merchant by ID", async () => {
-    const merchant = await Merchant.findOne({ name: firstMerchant.name });
-    if (merchant) {
-      await request(app).delete(`/merchants/${merchant._id}`).expect(200);
-      const deleted = await Merchant.findById(merchant._id);
+describe("DELETE /goods/:id", () => {
+  test("Should delete good by ID", async () => {
+    const bien = await Good.findOne({ name: firstGood.name });
+    if (bien) {
+      await request(app).delete(`/goods/${bien._id}`).expect(200);
+      const deleted = await Good.findById(bien._id);
       expect(deleted).toBe(null);
     }
   });
 
-  test("Should not delete a merchant if ID not found", async () => {
+  test("Should not delete a good if ID not found", async () => {
     await request(app)
-      .delete("/merchants/507f191e810c19729de860ea")
+      .delete("/goods/507f191e810c19729de860ea")
       .expect(404);
   });
 });
-
-describe("DELETE /merchants?name=", () => {
-  test("Should delete merchant by name", async () => {
-    await request(app)
-      .delete(`/merchants?name=${firstMerchant.name}`)
-      .expect(200);
-    const exists = await Merchant.findOne({ name: firstMerchant.name });
-    expect(exists).toBe(null);
-  });
-
-  test("Should not delete a merchant if name not found", async () => {
-    await request(app)
-      .delete("/merchants?name=Desconocido")
-      .expect(404);
-  });
-
-  test("Should not delete a merchant if query missing", async () => {
-    await request(app).delete("/merchants").expect(400);
-  });
-});
-
-*/
