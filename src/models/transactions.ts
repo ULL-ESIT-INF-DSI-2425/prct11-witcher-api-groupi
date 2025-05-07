@@ -8,6 +8,7 @@ interface TransactionDocumentInterface extends Document {
   amount: number;
   hunter?: HunterDocumentInterface | Schema.Types.ObjectId; // Referencia al cazador
   merchant?: MerchantDocumentInterface | Schema.Types.ObjectId; // Referencia al comerciante
+  totalImport: number; // Total del importe de la transacción
 }
 
 const TransactionSchema = new Schema<TransactionDocumentInterface>({
@@ -41,6 +42,11 @@ const TransactionSchema = new Schema<TransactionDocumentInterface>({
     default: null,
     validate: {
     }
+  },
+  totalImport: {
+    type: Number,
+    required: true,
+    min: 0, // El importe total no puede ser negativo
   }
 });
 
