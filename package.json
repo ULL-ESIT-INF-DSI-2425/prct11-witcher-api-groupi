@@ -5,7 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "doc": "typedoc",
-    "test": "vitest run",
+    "dev": "tsc-watch --onSuccess \"env-cmd -f ./config/dev.env node dist/index.js\"",
+    "test": "env-cmd -f ./config/test.env vitest run",
     "coverage": "vitest run --coverage --coverage.include=src/*.ts",
     "build": "tsc",
     "start": "node dist/index.js"
@@ -36,6 +37,7 @@
     "globals": "^16.0.0",
     "prettier": "^3.5.3",
     "supertest": "^7.1.0",
+    "tsc-watch": "^6.2.1",
     "typedoc": "^0.28.3",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.31.0",
