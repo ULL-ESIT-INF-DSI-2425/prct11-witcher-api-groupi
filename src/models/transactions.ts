@@ -1,9 +1,12 @@
 import { Document, Schema, model } from 'mongoose';
 import { HunterDocumentInterface } from "./hunter.js"
 import { MerchantDocumentInterface } from './merchant.js';
-import { GoodDocumentInterface } from './good.js';
-
+import { Good, GoodDocumentInterface } from './good.js';
 //import { validator } from 'validator';
+interface TransactionGood {
+  good: Schema.Types.ObjectId | GoodDocumentInterface;
+  quantity: number;
+} 
 
 interface TransactionDocumentInterface extends Document {
   date: Date;
@@ -11,10 +14,9 @@ interface TransactionDocumentInterface extends Document {
   amount: number;
   hunter?: HunterDocumentInterface | Schema.Types.ObjectId; // Referencia al cazador
   merchant?: MerchantDocumentInterface | Schema.Types.ObjectId; // Referencia al comerciante
-  goods: GoodDocumentInterface[];
+  goods: TransactionGood[];
   totalImport : number;
-  calculateTotalImport() : number; // Total del importe de la transacción
-  updateStock() : Promise<void>;
+  calculateTotalImport() : Promise<number>; // Total del importe de la transacción
   // GOODS
 }
 
@@ -40,7 +42,7 @@ const TransactionSchema = new Schema<TransactionDocumentInterface>({
     required: false,
     default: null,
     validate: {
-      validator: function(v : any) {
+      validator: function(v) {
         return !(v !== null && this.merchant != null);
       },
       message: "Una transaccion debe tener un hunter o un merchant, no ambos"
@@ -52,21 +54,42 @@ const TransactionSchema = new Schema<TransactionDocumentInterface>({
     required: false,
     default: null,
     validate: {
-      validator : function(v: any) {
+      validator : function(v) {
         return !(v !== null && this.hunter != null);
       }
     }
   },
+  goods: [
+    {
+      good: {
+        type: Schema.Types.ObjectId,
+        ref: 'Good',
+        required: true,
+      },
+      quantity: {
+        type: Number,
+        required: true,
+        min: 1,
+      },
+    },
+  ],
   totalImport: {
     type: Number,
     default: 0, // El importe total no puede ser negativo
   }
 });
 
-TransactionSchema.methods.calculateTotalImport = function() : number {
-  return this.goods.reduce((total, item) => {
-    return total + (item.quantity * item.price);
-  }, 0);
+TransactionSchema.methods.calculateTotalImport = async function (): Promise<number> {
+  let total = 0;
+  for (const item of this.goods) {
+    const good = await Good.findById(item.good);
+    if (!good) {
+      throw new Error(`Bien no encontrado: ${item.good}`);
+    }
+    total += good.value_in_crowns * item.quantity;
+  }
+  this.totalImport = total;
+  return total;
 };
 
 export const Transaction = model<TransactionDocumentInterface>('Transaction', TransactionSchema);
