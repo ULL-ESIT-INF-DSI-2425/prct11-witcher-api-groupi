@@ -1,6 +1,8 @@
 import { Document, Schema, model } from 'mongoose';
 import { HunterDocumentInterface } from "./hunter.js"
 import { MerchantDocumentInterface } from './merchant.js';
+import { GoodDocumentInterface } from './good.js';
+
 //import { validator } from 'validator';
 
 interface TransactionDocumentInterface extends Document {
@@ -9,11 +11,11 @@ interface TransactionDocumentInterface extends Document {
   amount: number;
   hunter?: HunterDocumentInterface | Schema.Types.ObjectId; // Referencia al cazador
   merchant?: MerchantDocumentInterface | Schema.Types.ObjectId; // Referencia al comerciante
+  goods: GoodDocumentInterface[];
   totalImport : number;
   calculateTotalImport() : number; // Total del importe de la transacción
   updateStock() : Promise<void>;
   // GOODS
-  goods : string;
 }
 
 const TransactionSchema = new Schema<TransactionDocumentInterface>({
