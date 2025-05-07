@@ -13,3 +13,6 @@
 ### NECESARIO PARA PODER ABRIR BASE DE DATOS
 Poner el siguiente comando en la terminal:
 sudo /home/usuario/mongodb/bin/mongod --dbpath /home/usuario/mongodb-data/
+
+### PRUEBAS
+http://localhost:3000/goods?name=Espada&material=Acero de Mahakam&stock=4

@@ -1,7 +1,7 @@
 import { Document, Schema, model } from 'mongoose';
 import validator from 'validator';
 
-interface HunterDocumentInterface extends Document {
+export interface HunterDocumentInterface extends Document {
   name: string,
   location: string,
   race?: 'Humano' | 'Elfo' | 'Enano' | 'Hechicero'

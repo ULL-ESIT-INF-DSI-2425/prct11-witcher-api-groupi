@@ -1,11 +1,10 @@
 import { Document, Schema, model } from 'mongoose';
-// import validator from 'validator';
 
-interface GoodDocumentInterface extends Document {
+export interface GoodDocumentInterface extends Document {
   name: string,
   description: string,
   material?: 'Acero de Mahakam' | 'Cuero endurecido' | 'Esencia mágica' | 'Mutágenos de bestias antiguas',
-  weight?: number,
+  weight: number,
   value_in_crowns: number
   stock: number
 }

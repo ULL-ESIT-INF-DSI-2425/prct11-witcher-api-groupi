@@ -1,7 +1,7 @@
 import { Document, Schema, model } from 'mongoose';
 import validator from 'validator';
 
-interface MerchantDocumentInterface extends Document {
+export interface MerchantDocumentInterface extends Document {
   name: string,
   location: string,
   type?: 'Herrero' | 'Alquimista' | 'Mercader general'
