@@ -1,6 +1,7 @@
 import { Document, Schema, model } from 'mongoose';
 import { HunterDocumentInterface } from "./hunter.js"
 import { MerchantDocumentInterface } from './merchant.js';
+//import { validator } from 'validator';
 
 interface TransactionDocumentInterface extends Document {
   date: Date;
@@ -8,7 +9,11 @@ interface TransactionDocumentInterface extends Document {
   amount: number;
   hunter?: HunterDocumentInterface | Schema.Types.ObjectId; // Referencia al cazador
   merchant?: MerchantDocumentInterface | Schema.Types.ObjectId; // Referencia al comerciante
-  totalImport: number; // Total del importe de la transacción
+  totalImport : number;
+  calculateTotalImport() : number; // Total del importe de la transacción
+  updateStock() : Promise<void>;
+  // GOODS
+  goods : string;
 }
 
 const TransactionSchema = new Schema<TransactionDocumentInterface>({
@@ -33,6 +38,10 @@ const TransactionSchema = new Schema<TransactionDocumentInterface>({
     required: false,
     default: null,
     validate: {
+      validator: function(v : any) {
+        return !(v !== null && this.merchant != null);
+      },
+      message: "Una transaccion debe tener un hunter o un merchant, no ambos"
     }
   },
   merchant: {
@@ -41,13 +50,21 @@ const TransactionSchema = new Schema<TransactionDocumentInterface>({
     required: false,
     default: null,
     validate: {
+      validator : function(v: any) {
+        return !(v !== null && this.hunter != null);
+      }
     }
   },
   totalImport: {
     type: Number,
-    required: true,
-    min: 0, // El importe total no puede ser negativo
+    default: 0, // El importe total no puede ser negativo
   }
 });
+
+TransactionSchema.methods.calculateTotalImport = function() : number {
+  return this.goods.reduce((total, item) => {
+    return total + (item.quantity * item.price);
+  }, 0);
+};
 
 export const Transaction = model<TransactionDocumentInterface>('Transaction', TransactionSchema);
