@@ -1,22 +1,47 @@
 import { Document, Schema, model } from 'mongoose';
 import { HunterDocumentInterface } from "./hunter.js"
+import { MerchantDocumentInterface } from './merchant.js';
+
 interface TransactionDocumentInterface extends Document {
-  hunter: HunterDocumentInterface,
-  description: string;
-  totalAmount: number;
-  createdDate: Date;
+  date: Date;
+  type: 'buy' | 'sell' | 'return';
+  amount: number;
+  hunter?: HunterDocumentInterface | Schema.Types.ObjectId; // Referencia al cazador
+  merchant?: MerchantDocumentInterface | Schema.Types.ObjectId; // Referencia al comerciante
 }
 
 const TransactionSchema = new Schema<TransactionDocumentInterface>({
+  date: {
+    type: Date,
+    default: Date.now,
+    required: true,
+  },
+  amount: {
+    type: Number,
+    required: true,
+    min: 1, //Necesitas comprar al menos 1 bien
+  },
+  type: {
+    type: String,
+    enum: ['buy', 'sell', 'return'],
+    required: true,
+  },
   hunter: {
     type: Schema.Types.ObjectId,
     ref: 'Hunter', 
-    required: true,
+    required: false,
+    default: null,
+    validate: {
+    }
   },
-  description: {
-    type: String,
-    trim: true,
-    required: true,
+  merchant: {
+    type: Schema.Types.ObjectId,
+    ref: 'Merchant', 
+    required: false,
+    default: null,
+    validate: {
+    }
   }
 });
+
 export const Transaction = model<TransactionDocumentInterface>('Transaction', TransactionSchema);
