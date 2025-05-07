@@ -2,7 +2,7 @@ import { Document, Schema, model } from 'mongoose';
 import { HunterDocumentInterface } from "./hunter.js"
 import { MerchantDocumentInterface } from './merchant.js';
 import { Good, GoodDocumentInterface } from './good.js';
-//import { validator } from 'validator';
+
 interface TransactionGood {
   good: Schema.Types.ObjectId | GoodDocumentInterface;
   quantity: number;
@@ -17,7 +17,6 @@ interface TransactionDocumentInterface extends Document {
   goods: TransactionGood[];
   totalImport : number;
   calculateTotalImport() : Promise<number>; // Total del importe de la transacción
-  // GOODS
 }
 
 const TransactionSchema = new Schema<TransactionDocumentInterface>({
