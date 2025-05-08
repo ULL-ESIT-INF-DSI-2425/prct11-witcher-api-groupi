@@ -19,18 +19,14 @@ hunterRouter.post("/hunters", async (req, res) => {
  */
 hunterRouter.get("/hunters", async (req, res) => {
   try {
-    const name = req.query.name?.toString();
-    if (name) {
-      const hunter = await Hunter.findOne({name: name});
-      if (hunter) {
-        res.send(hunter);
-      } else {
-        res.status(404).send({
-          error: "No se encontró al cazador por nombre",
-        });
-      }
+    const filter = req.query.name?{name: req.query.name.toString()} : {};
+    const hunter = await Hunter.find(filter);
+    if (hunter.length > 0) {
+      res.send(hunter);
     } else {
-      res.status(404).send();
+      res.status(404).send({
+        error: "No se encontró al cazador por nombre",
+      });
     }
   } catch (error) {
     res.status(500).send(error);

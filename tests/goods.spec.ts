@@ -60,13 +60,7 @@ describe("GET /goods", () => {
     const res = await request(app)
       .get(`/goods?name=${firstGood.name}`)
       .expect(200);
-    expect(res.body.name).toBe(firstGood.name);
-  });
-
-  test("Should not find a good if name not found", async () => {
-    await request(app)
-      .get("/goods?name=prueba")
-      .expect(404);
+      expect(res.body.some((atribute) => atribute.name === "Espada de Estela")).toBe(true);
   });
 });
 

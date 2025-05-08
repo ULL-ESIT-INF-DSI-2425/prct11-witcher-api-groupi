@@ -1,15 +1,14 @@
 import express from 'express';
 import { Transaction } from '../models/transactions.js';
 import { Good } from '../models/good.js';
-import { Hunter } from '../models/hunter.js';
-import { Merchant } from '../models/merchant.js';
+
 
 export const transactionRouter = express.Router();
 
 /**
  * Funcion que permite actualizar el stock segun compres, vendas o devuelvas bienes
- * @param goods todos los bienes
- * @param type tipo de la transaccion puede ser buy, sell o return
+ * @param goods - todos los bienes
+ * @param type - tipo de la transaccion puede ser buy, sell o return
  */
 const updateStock = async (goods: { good: string; quantity: number }[], type : string) => {
   for (const item of goods) {
@@ -88,23 +87,27 @@ transactionRouter.get('/transactions/date/:date', async (req, res) => {
   }
 });
 
-/* ERROR EN ASYNC
+// ERROR EN ASYNC
 transactionRouter.get('transactions/type/:type', async(req, res) => {
   try {
     const tipo = req.params.type;
     if (!['buy', 'sell', 'return'].includes(tipo)) {
-      return res.status(400).send({ error: 'Tipo inválido. Usa "buy", "sell" o "return"' });
+      res.status(400).send({ 
+        error: 'Tipo inválido. Usa "buy", "sell" o "return"' 
+      });
     }
     const transactions = await Transaction.find({ tipo }).populate('goods.good');
     if (transactions.length === 0) {
-      return res.status(404).send({ message: `No se encontraron transacciones del tipo "${tipo}"` });
+      res.status(404).send({ 
+        message: `No se encontraron transacciones del tipo "${tipo}"` 
+      });
     }
     res.status(200).send(transactions);
   } catch (error) {
     res.status(500).send(error);
   }
 });
-*/
+
 
 /**
  * Elimina una transaccion buscandola por su id
@@ -129,12 +132,14 @@ transactionRouter.delete('/transactions/:id', async (req, res) => {
   }
 });
 
-/* ERROR EN EL ASYNC
+// ERROR EN EL ASYNC
 transactionRouter.delete('/transactions', async (req, res) => {
   try {
     const transactions = await Transaction.find();
     if (transactions.length === 0) {
-      return res.status(404).send({ message: 'No hay transacciones para eliminar' });
+      res.status(404).send({ 
+        message: 'No hay transacciones para eliminar' 
+      });
     }
     for (const transaction of transactions) {
       // Revertir el stock para cada transacción según su tipo
@@ -147,12 +152,14 @@ transactionRouter.delete('/transactions', async (req, res) => {
       );
       await transaction.deleteOne();
     }
-    res.status(200).send({ message: `Se eliminaron ${transactions.length} transacciones` });
+    res.status(200).send({ 
+      message: `Se eliminaron ${transactions.length} transacciones` 
+    });
   } catch (error) {
     res.status(500).send(error);
   }
 });
-*/
+
 
 
 

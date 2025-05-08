@@ -49,7 +49,7 @@ describe("GET /hunters", () => {
     const res = await request(app)
       .get(`/hunters?name=${firstHunter.name}`)
       .expect(200);
-    expect(res.body.name).toBe(firstHunter.name);
+    expect(res.body.some((atribute) => atribute.name === firstHunter.name)).toBe(true);
   });
 
   test("Should not find a hunter if name not found", async () => {
@@ -58,9 +58,6 @@ describe("GET /hunters", () => {
       .expect(404);
   });
 
-  test("Should not find a hunter if name param missing", async () => {
-    await request(app).get("/hunters").expect(404);
-  });
 });
 
 describe("GET /hunters/:id", () => {

@@ -49,17 +49,13 @@ describe("GET /merchants", () => {
     const res = await request(app)
       .get(`/merchants?name=${firstMerchant.name}`)
       .expect(200);
-    expect(res.body.name).toBe(firstMerchant.name);
+    expect(res.body.some((atribute) => atribute.name === firstMerchant.name)).toBe(true);
   });
 
   test("Should not find a merchant if name not found", async () => {
     await request(app)
-      .get("/merchants?name=prueba")
+      .get("/merchants?name=mal")
       .expect(404);
-  });
-
-  test("Should not find a merchant if name param is missing", async () => {
-    await request(app).get("/merchants").expect(404);
   });
 });
 

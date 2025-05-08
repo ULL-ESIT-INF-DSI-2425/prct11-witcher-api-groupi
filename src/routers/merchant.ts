@@ -19,18 +19,14 @@ merchantRouter.post("/merchants", async (req, res) => {
  */
 merchantRouter.get("/merchants", async (req, res) => {
   try {
-    const name = req.query.name?.toString();
-    if (name) {
-      const merchant = await Merchant.findOne({name: name});
-      if (merchant) {
-        res.send(merchant);
-      } else {
-        res.status(404).send({
-          error: "No se encontró al mercader por nombre",
-        });
-      }
+    const filter = req.query.name?{name: req.query.name.toString()} : {};
+    const merchant = await Merchant.find(filter);
+    if (merchant.length > 0) {
+      res.send(merchant);
     } else {
-      res.status(404).send();
+      res.status(404).send({
+        error: "No se encontró al mercader por nombre",
+      });
     }
   } catch (error) {
     res.status(500).send(error);

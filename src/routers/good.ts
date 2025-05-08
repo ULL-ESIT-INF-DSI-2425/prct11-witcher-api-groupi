@@ -37,29 +37,9 @@ goodRouter.get("/goods/:id", async (req, res) => {
  */
 goodRouter.get("/goods", async (req, res) => {
   try {
-    const allowedKeys = [
-      "name",
-      "description",
-      "material",
-      "weight",
-      "value_in_crowns",
-      "stock"
-    ];
-
-    const filter = {};
-
-    for (const key in req.query) {
-      if (allowedKeys.includes(key)) {
-        const value = req.query[key];
-        if (["weight", "value_in_crowns", "stock"].includes(key)) {
-          filter[key] = Number(value);
-        } else {
-          filter[key] = value?.toString();
-        }
-      }
-    }
-    const good = await Good.findOne(filter);
-    if (good) { // Si se encuentra el bien, se devuelve
+    const filter = req.query?  req.query  : {};
+    const good = await Good.find(filter);
+    if (good.length > 0) { 
       res.send(good);
     } else {
       res.status(404).send({
@@ -75,31 +55,12 @@ goodRouter.get("/goods", async (req, res) => {
 /**
  * Metodo para actualizar las caracteristicas de un bien dado alguno de los parámetros como el nombre
  */
-//IMPORTANTE! Es necesario que cuando se actualice un bien que ya está se deberá cambiar el stock y hacer comprobaciones como si el stock
-// esta vacío y no permitir < 0
 goodRouter.patch("/goods", async (req, res) => {
   try {
-    const allowedKeys = [
-      "name",
-      "description",
-      "material",
-      "weight",
-      "value_in_crowns",
-      "stock"
-    ];
-    const filter = {};
-    for (const key in req.query) {
-      if (allowedKeys.includes(key)) {
-        const value = req.query[key];
-        if (["weight", "value_in_crowns", "stock"].includes(key)) {
-          filter[key] = Number(value);
-        } else {
-          filter[key] = value?.toString();
-        }
-      }
-    }
+    const filter = req.query?  req.query  : {};
+    const allowedUpdates = ["name", "description", "material", "weight","value_in_crowns","stock"];
     const actualUpdates = Object.keys(req.body);
-    const isValidUpdate = actualUpdates.every((update) => allowedKeys.includes(update));
+    const isValidUpdate = actualUpdates.every((update) => allowedUpdates.includes(update));
 
     if (!isValidUpdate) {
       res.status(400).send({ error: "La actualización no está permitida" });
@@ -216,25 +177,7 @@ goodRouter.delete("/goods/:id", async (req, res) => {
  */
 goodRouter.delete("/goods", async (req, res) => {
   try {
-    const allowedKeys = [
-      "name",
-      "description",
-      "material",
-      "weight",
-      "value_in_crowns",
-      "stock"
-    ];
-    const filter = {};
-    for (const key in req.query) {
-      if (allowedKeys.includes(key)) {
-        const value = req.query[key];
-        if (["weight", "value_in_crowns", "stock"].includes(key)) {
-          filter[key] = Number(value);
-        } else {
-          filter[key] = value?.toString();
-        }
-      }
-    }
+    const filter = req.query?  req.query  : {};
     const deletedGood = await Good.findOneAndDelete(filter);
     if (deletedGood) {
       res.send(deletedGood);
