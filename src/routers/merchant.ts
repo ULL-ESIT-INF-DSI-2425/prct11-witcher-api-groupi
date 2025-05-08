@@ -1,5 +1,7 @@
 import express from 'express';
 import { Merchant } from '../models/merchant.js';
+import { Transaction } from '../models/transactions.js';
+import { updateStock } from '../controllers/transactions.js'
 export const merchantRouter = express.Router();
 /**
  * Método para crear un mercader
@@ -26,7 +28,7 @@ merchantRouter.get("/merchants", async (req, res) => {
       res.send(merchant);
     } else {
       res.status(404).send({
-        error: "No se encontró al mercader por nombre",
+        error: "No se encontró al mercader",
       });
     }
   } catch (error) {
@@ -95,7 +97,14 @@ merchantRouter.patch("/merchants/:id", async (req, res) => {
  */
 merchantRouter.patch("/merchants", async (req, res) => {
   try {
-    const filter = req.query?  req.query  : {};
+    let filter = {};
+    if (Object.keys(req.query).length === 0) {
+      res.status(404).send({
+        error: "No se ha especificado algún atributo del mercader",
+      });
+    } else {
+      filter = req.query;
+    }
     /*
     let filter = {};
     if (req.query.name) {
@@ -146,7 +155,24 @@ merchantRouter.delete("/merchants/:id", async (req, res) => {
   try {
     const merchant = await Merchant.findByIdAndDelete(req.params.id);
     if (merchant) {
-      res.send(merchant);
+      const transactions = await Transaction.find({ personName: merchant.name, personType: "Merchant" });
+      for (const transaction of transactions) {
+        const reverseType = transaction.type === "buy" ? "sell" : transaction.type === "sell" ? "buy" : "sell"; 
+        await updateStock(
+          transaction.goods.map(item => ({
+            good: item.good.toString(),
+            quantity: item.quantity,
+          })),
+          reverseType
+        );
+
+        await transaction.deleteOne(); 
+      }
+      res.send({
+        message: "Mercader y sus transacciones eliminados.",
+        merchant,
+        deletedTransactionsCount: transactions.length,
+      });
     } else {
       res.status(404).send({
         error: "No se encontró al mercader para eliminar",
@@ -163,7 +189,14 @@ merchantRouter.delete("/merchants/:id", async (req, res) => {
  */
 merchantRouter.delete("/merchants", async (req, res) => {
   try {
-    const filter = req.query?  req.query  : {};
+    let filter = {};
+    if (Object.keys(req.query).length === 0) {
+      res.status(404).send({
+        error: "No se ha especificado algún atributo del mercader",
+      });
+    } else {
+      filter = req.query;
+    }
     /*
     let filter = {};
     if (req.query.name) {
@@ -176,7 +209,24 @@ merchantRouter.delete("/merchants", async (req, res) => {
     */
     const merchant = await Merchant.findOneAndDelete(filter)
     if (merchant) {
-      res.send(merchant);
+      const transactions = await Transaction.find({ personName: merchant.name, personType: "Merchant" });
+      for (const transaction of transactions) {
+        const reverseType = transaction.type === "buy" ? "sell" : transaction.type === "sell" ? "buy" : "sell"; 
+        await updateStock(
+          transaction.goods.map(item => ({
+            good: item.good.toString(),
+            quantity: item.quantity,
+          })),
+          reverseType
+        );
+
+        await transaction.deleteOne(); 
+      }
+      res.send({
+        message: "Mercader y sus transacciones eliminados.",
+        merchant,
+        deletedTransactionsCount: transactions.length,
+      });
     } else {
       res.status(404).send({
         error: "No se encontró al mercader para eliminar",

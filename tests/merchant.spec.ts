@@ -124,7 +124,7 @@ describe("PATCH /merchants?name=", () => {
     await request(app)
       .patch("/merchants")
       .send({ type: "Herrero" })
-      .expect(400);
+      .expect(404);
   });
 
   test("Should not update a merchant if name not found", async () => {

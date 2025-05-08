@@ -1,7 +1,6 @@
 import express from 'express';
 import { Transaction } from '../models/transactions.js';
-//import { Good } from '../models/good.js';
-import { updateStock, createTransaction } from '../controllers/transactions.js'
+import { updateStock, createTransaction, updateTransactionByID } from '../controllers/transactions.js'
 
 export const transactionRouter = express.Router();
 
@@ -90,11 +89,20 @@ transactionRouter.delete('/transactions/:id', async (req, res) => {
     res.status(500).send(error);
   }
 });
-
+/**
+ * Método para borrar una transacción, indicando cualquier atributo
+ */
 transactionRouter.delete('/transactions', async (req, res) => {
   try {
-    //const filter = req.query?  req.query  : {};
-    const transactions = await Transaction.find();
+    let filter = {};
+    if (req.query) {
+      filter = req.query;
+    } else {
+      res.status(400).send({
+        error: "No se ha especificado algún atributo del mercader",
+      });
+    }
+    const transactions = await Transaction.find(filter);
     if (transactions.length < 0) {
       res.status(404).send({ 
         message: 'No hay transacciones para eliminar' 
@@ -118,7 +126,12 @@ transactionRouter.delete('/transactions', async (req, res) => {
     res.status(500).send(error);
   }
 });
-
+/**
+ * Método para actualizar una transacción
+ */
+transactionRouter.patch('/transactions/:id', async (req, res) => {
+  await updateTransactionByID(req, res);
+});
 
 
 

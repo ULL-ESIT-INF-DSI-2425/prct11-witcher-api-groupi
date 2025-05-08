@@ -15,7 +15,6 @@ interface TransactionDocumentInterface extends Document {
   personName: string;
   goods: TransactionGood[];
   totalImport : number;
-  //calculateTotalImport() : Promise<number>; 
 }
 
 const TransactionSchema = new Schema<TransactionDocumentInterface>({
@@ -62,20 +61,5 @@ const TransactionSchema = new Schema<TransactionDocumentInterface>({
     default: 0, 
   }
 });
-
-/*
-TransactionSchema.methods.calculateTotalImport = async function (): Promise<number> {
-  let total = 0;
-  for (const item of this.goods) {
-    const good = await Good.findById(item.good);
-    if (!good) {
-      throw new Error(`Bien no encontrado: ${item.good}`);
-    }
-    total += good.value_in_crowns * item.quantity;
-  }
-  this.totalImport = total;
-  return total;
-};
-*/
 
 export const Transaction = model<TransactionDocumentInterface>('Transaction', TransactionSchema);

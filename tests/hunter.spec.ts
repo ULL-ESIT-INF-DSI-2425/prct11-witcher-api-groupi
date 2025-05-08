@@ -123,7 +123,7 @@ describe("PATCH /hunters?name=", () => {
   });
 
   test("Should not update the hunter without name query", async () => {
-    await request(app).patch("/hunters").send({ race: "Other" }).expect(400);
+    await request(app).patch("/hunters").send({ race: "Other" }).expect(404);
   });
 
   test("Should not update the hunter if name not found", async () => {
@@ -175,7 +175,7 @@ describe("DELETE /hunters?name=", () => {
   });
 
   test("Should not delete a hunter if query missing", async () => {
-    await request(app).delete("/hunters").expect(400);
+    await request(app).delete("/hunters").expect(404);
   });
 });
 

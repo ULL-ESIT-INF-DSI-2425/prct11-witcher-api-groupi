@@ -1,5 +1,7 @@
 import express from 'express';
 import { Hunter } from '../models/hunter.js';
+import { Transaction } from '../models/transactions.js';
+import { updateStock } from '../controllers/transactions.js'
 export const hunterRouter = express.Router();
 /**
  * Método para crear un cazador
@@ -15,7 +17,6 @@ hunterRouter.post("/hunters", async (req, res) => {
 });
 /**
  * Método para obtener cazadores
- * @param name - Nombre del cazador utilizando una query string
  */
 hunterRouter.get("/hunters", async (req, res) => {
   try {
@@ -26,7 +27,7 @@ hunterRouter.get("/hunters", async (req, res) => {
       res.send(hunter);
     } else {
       res.status(404).send({
-        error: "No se encontró al cazador por nombre",
+        error: "No se encontró al cazador",
       });
     }
   } catch (error) {
@@ -87,11 +88,17 @@ hunterRouter.patch("/hunters/:id", async (req, res) => {
 });
 /**
  * Método para actualizar un cazador
- * @param name - Nombre del cazador utilizando una query string
  */
 hunterRouter.patch("/hunters", async (req, res) => {
   try {
-    const filter = req.query?  req.query  : {};
+    let filter = {};
+    if (Object.keys(req.query).length === 0) {
+      res.status(404).send({
+        error: "No se ha especificado algún atributo del mercader",
+      });
+    } else {
+      filter = req.query;
+    }
     /*
     let filter = {};
     if (req.query.name) {
@@ -142,7 +149,24 @@ hunterRouter.delete("/hunters/:id", async (req, res) => {
   try {
     const hunter = await Hunter.findByIdAndDelete(req.params.id);
     if (hunter) {
-      res.send(hunter);
+      const transactions = await Transaction.find({ personName: hunter.name, personType: "Merchant" });
+      for (const transaction of transactions) {
+        const reverseType = transaction.type === "buy" ? "sell" : transaction.type === "sell" ? "buy" : "sell"; 
+        await updateStock(
+          transaction.goods.map(item => ({
+            good: item.good.toString(),
+            quantity: item.quantity,
+          })),
+          reverseType
+        );
+
+        await transaction.deleteOne(); 
+      }
+      res.send({
+        message: "Cazador y sus transacciones eliminados.",
+        hunter,
+        deletedTransactionsCount: transactions.length,
+      });
     } else {
       res.status(404).send();
     } 
@@ -152,13 +176,19 @@ hunterRouter.delete("/hunters/:id", async (req, res) => {
 });
 
 /**
- * Método para borrar un cazador
- * @param name - Nombre del cazador utilizando una query string
+ * Método para borrar un cazador a través de cualquier atributo de la query string
  */
 hunterRouter.delete("/hunters", async (req, res) => {
   try {
-    const filter = req.query?  req.query  : {};
-    /**
+    let filter = {};
+    if (Object.keys(req.query).length === 0) {
+      res.status(404).send({
+        error: "No se ha especificado algún atributo del mercader",
+      });
+    } else {
+      filter = req.query;
+    }
+    /*
     let filter = {};
     if (req.query.name) {
       filter =  { name: req.query.name.toString() };
@@ -170,7 +200,24 @@ hunterRouter.delete("/hunters", async (req, res) => {
     */
     const hunter = await Hunter.findOneAndDelete(filter);
     if (hunter) {
-      res.send(hunter);
+      const transactions = await Transaction.find({ personName: hunter.name, personType: "Merchant" });
+      for (const transaction of transactions) {
+        const reverseType = transaction.type === "buy" ? "sell" : transaction.type === "sell" ? "buy" : "sell"; 
+        await updateStock(
+          transaction.goods.map(item => ({
+            good: item.good.toString(),
+            quantity: item.quantity,
+          })),
+          reverseType
+        );
+
+        await transaction.deleteOne(); 
+      }
+      res.send({
+        message: "Cazador y sus transacciones eliminados.",
+        hunter,
+        deletedTransactionsCount: transactions.length,
+      });
     } else {
       res.status(404).send({
         error: "No se encontró el cazador para eliminar",
@@ -180,5 +227,3 @@ hunterRouter.delete("/hunters", async (req, res) => {
     res.status(500).send(error);
   }
 });
-
-

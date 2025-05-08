@@ -16,3 +16,12 @@ sudo /home/usuario/mongodb/bin/mongod --dbpath /home/usuario/mongodb-data/
 
 ### PRUEBAS
 http://localhost:3000/goods?name=Espada&material=Acero de Mahakam&stock=4
+
+GET MERCHANTS
+http://localhost:3000/merchants?type=Herrero&location=Novigrado
+PATCH MERCHANTS
+http://localhost:3000/merchants?name='nombre'
+http://localhost:3000/merchants/'id'
+DELETE
+http://localhost:3000/merchants?location=Novigrado
+http://localhost:3000/merchants/'id'
