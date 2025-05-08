@@ -179,7 +179,6 @@ describe("transactions tests", () => {
       expect(good.stock).toBe(30); 
     }
   });
-
   test("PATCH /transactions/:id - updates a good of a transaction", async () => {
     const postRes = await request(app).post("/transactions").send({
       typeTrans: "buy",
@@ -222,26 +221,40 @@ describe("transactions tests", () => {
     expect(patchRes.status).toBe(400);
     expect(patchRes.body.message).toContain(`Bien con nombre "NonExistentGood" no encontrado`);
   });
-  test("PATCH /transactions - should fail if reverting the original transaction exceeds available stock", async () => {
+  test("PATCH /transactions - Should fail if reverting the original transaction exceeds available stock", async () => {
     await Good.updateOne({ name: "Espaditaa" }, { $set: { stock: 0 } });
-
     const postRes = await request(app).post("/transactions").send({
-      typeTrans: "sell", // Tipo SELL, revertirá como BUY (quita stock)
+      typeTrans: "sell", 
       personName: "Juan",
       goods: [{ name: "Espaditaa", quantity: 1 }]
     });
-
     expect(postRes.status).toBe(201);
-
     const patchRes = await request(app)
       .patch("/transactions")
       .query({ personName: "Juan" })
       .send({
         goods: [{ name: "Espaditaa", quantity: 1 }]
       });
-
     expect(patchRes.status).toBe(400);
     expect(patchRes.body.message).toContain("No se pudo revertir el stock anterior");
+  });
+  test("PATCH /transactions - Should successfully update a 'buy' transaction", async () => {
+    const postRes = await request(app).post("/transactions").send({
+      typeTrans: "buy",
+      personName: "Manolo", 
+      goods: [{ name: "Espaditaa", quantity: 1 }]
+    });
+    expect(postRes.status).toBe(201);
+    const transactionId = postRes.body._id;
+    const patchRes = await request(app)
+      .patch(`/transactions/${transactionId}`)
+      .send({
+        goods: [{ name: "Espaditaa", quantity: 2 }]
+      });
+    expect(patchRes.status).toBe(200);
+    expect(patchRes.body.success).toBe(true);
+    expect(patchRes.body.data.amount).toBe(2);
+    expect(patchRes.body.data.totalImport).toBe(400); 
   });
 });
 

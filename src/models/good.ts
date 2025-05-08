@@ -46,8 +46,8 @@ const GoodSchema = new Schema<GoodDocumentInterface>({
   stock: {
     type: Number,
     default: 0,
-    min: 0, // Para evitar valores negativos
-    max: 1000, // Limitar el stock a un máximo
+    min: 0, 
+    max: 1000, 
     validate: {
       validator: Number.isInteger,
       message: 'El stock debe ser un número entero'

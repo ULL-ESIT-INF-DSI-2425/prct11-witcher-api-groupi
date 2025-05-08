@@ -129,15 +129,8 @@ export const updateTransactionByID = async (req, res) => {
         message: 'Transacción no encontrada'
       });
     }
-
     const revertType =
-      originalTransaction.type === 'buy'
-        ? 'sell'
-        : originalTransaction.type === 'sell'
-        ? 'buy'
-        : 'sell';
-
-    // ✅ Intentamos revertir el stock anterior, pero capturamos errores si no es posible
+      originalTransaction.type === 'buy'? 'sell': originalTransaction.type === 'sell'? 'buy': 'sell';
     try {
       await updateStock(
         originalTransaction.goods.map(item => ({
@@ -152,17 +145,13 @@ export const updateTransactionByID = async (req, res) => {
         message: `No se pudo revertir el stock anterior: ${(err as Error).message}`
       });
     }
-
     const newGoods: TransactionGood[] = [];
     let newTotalImport = 0;
     let newAmount = 0;
-
     for (const item of req.body.goods) {
       let goodDoc = await Good.findOne({ name: item.name }) as GoodDocumentInterface | null;
-
       if (!goodDoc) {
         if (originalTransaction.type === 'sell') {
-          // ✅ Crear bien automáticamente si es una venta
           goodDoc = new Good({
             name: item.name,
             description: "Bien creado automáticamente al actualizar transacción",
@@ -179,17 +168,13 @@ export const updateTransactionByID = async (req, res) => {
           });
         }
       }
-
       newGoods.push({
         good: goodDoc._id as Types.ObjectId,
         quantity: item.quantity
       });
-
       newTotalImport += goodDoc.value_in_crowns * item.quantity;
       newAmount += item.quantity;
     }
-
-    // ✅ Usamos los _id reales para evitar errores de "bien no encontrado"
     await updateStock(
       newGoods.map(item => ({
         good: item.good.toString(),
@@ -197,8 +182,6 @@ export const updateTransactionByID = async (req, res) => {
       })),
       originalTransaction.type
     );
-
-    // ✅ Actualizar la transacción en la base de datos
     const updatedTransaction = await Transaction.findByIdAndUpdate(
       req.params.id,
       {
@@ -212,12 +195,10 @@ export const updateTransactionByID = async (req, res) => {
       },
       { new: true, runValidators: true }
     );
-
     return res.status(200).json({
       success: true,
       data: updatedTransaction
     });
-
   } catch (error) {
     console.error('Error al actualizar transacción:', error);
     return res.status(500).json({

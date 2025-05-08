@@ -18,6 +18,8 @@ https://prct11-witcher-api-groupi.onrender.com
 Poner el siguiente comando en la terminal:
 sudo /home/usuario/mongodb/bin/mongod --dbpath /home/usuario/mongodb-data/
 
+Se puede iniciar la base de datos mediante: npm run ini-db
+
 ### PRUEBAS
 http://localhost:3000/goods?name=Espada&material=Acero de Mahakam&stock=4
 

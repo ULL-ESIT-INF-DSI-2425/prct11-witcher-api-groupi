@@ -103,7 +103,7 @@ transactionRouter.delete('/transactions', async (req, res) => {
       });
     }
     const transactions = await Transaction.find(filter);
-    if (transactions.length < 0) {
+    if (transactions.length === 0) {
       res.status(404).send({ 
         message: 'No hay transacciones para eliminar' 
       });
@@ -141,14 +141,16 @@ transactionRouter.patch('/transactions/:id', async (req, res) => {
 transactionRouter.patch('/transactions', async (req, res) => {
   try {
     const filter = req.query;
-
     if (!filter || Object.keys(filter).length === 0) {
-      res.status(400).send({ error: "No filter attribute specified" });
+      res.status(400).send({ 
+        error: "No se ha especificado ningún filtro" 
+      });
     } else {
       const transactions = await Transaction.find(filter);
-
       if (transactions.length === 0) {
-        res.status(404).send({ error: "No matching transactions found" });
+        res.status(404).send({ 
+          error: "No coincide ninguna trasancción" 
+        });
       } else {
         const transaction = transactions[0];
         (req.params as { id: string }).id = (transaction._id as Types.ObjectId).toString();
