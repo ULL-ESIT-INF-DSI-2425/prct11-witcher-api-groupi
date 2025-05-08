@@ -60,7 +60,13 @@ describe("GET /goods", () => {
     const res = await request(app)
       .get(`/goods?name=${firstGood.name}`)
       .expect(200);
-      expect(res.body.some((atribute) => atribute.name === "Espada de Estela")).toBe(true);
+      expect(res.body.some((atribute) => atribute.name === firstGood.name)).toBe(true);
+  });
+  test("Should get a good by weight", async () => {
+    const res = await request(app)
+      .get(`/goods?weight=${firstGood.weight}`)
+      .expect(200);
+      expect(res.body.some((atribute) => atribute.weight === firstGood.weight)).toBe(true);
   });
 });
 

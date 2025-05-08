@@ -19,7 +19,8 @@ hunterRouter.post("/hunters", async (req, res) => {
  */
 hunterRouter.get("/hunters", async (req, res) => {
   try {
-    const filter = req.query.name?{name: req.query.name.toString()} : {};
+    //const filter = req.query?  req.query  : {};
+    const filter = req.query.name?{name: req.query.name.toString()}:{};
     const hunter = await Hunter.find(filter);
     if (hunter.length > 0) {
       res.send(hunter);
@@ -44,43 +45,6 @@ hunterRouter.get("/hunters/:id", async (req, res) => {
     } else {
       res.status(404).send();
     }
-  } catch (error) {
-    res.status(500).send(error);
-  }
-});
-/**
- * Método para obtener cazadores
- * @param location - Localización del cazador 
- */
-hunterRouter.get("/hunters/location/:location", async (req, res) => {
-  try {
-    const hunter = await Hunter.findOne({
-      location: req.params.location
-    });
-    if (hunter) {
-      res.send(hunter);
-    } else {
-      res.status(404).send();
-    }   
-  } catch (error) {
-    res.status(500).send(error);
-  }
-});
-/**
- * Método para obtener cazadores
- * @param race - Raza del cazador
- */
-hunterRouter.get("/hunters/race/:race", async (req, res) => {
-  try {
-    const hunter = await Hunter.findOne({
-      race: req.params.race
-    });
-
-    if (hunter) {
-      res.send(hunter);
-    } else {
-      res.status(404).send();
-    }  
   } catch (error) {
     res.status(500).send(error);
   }
@@ -127,13 +91,15 @@ hunterRouter.patch("/hunters/:id", async (req, res) => {
  */
 hunterRouter.patch("/hunters", async (req, res) => {
   try {
-    const name = req.query.name?.toString();
-    if (!name) {
+    //const filter = req.query?  req.query  : {};
+    let filter = {};
+    if (req.query.name) {
+      filter =  { name: req.query.name.toString() };
+    } else {
       res.status(400).send({
-        error: "Falta el parámetro de búsqueda 'name' en query string",
+        error: "No se ha especificado el nombre del mercader",
       });
-    }
-
+    } 
     const allowedUpdates = ["name", "location", "race"];
     const actualUpdates = Object.keys(req.body);
     const isValidUpdate = actualUpdates.every((update) =>
@@ -146,9 +112,7 @@ hunterRouter.patch("/hunters", async (req, res) => {
       });
     } else {
       const hunter = await Hunter.findOneAndUpdate(
-        {
-          name: name,
-        },
+        filter,
         req.body,
         {
           new: true,
@@ -191,15 +155,16 @@ hunterRouter.delete("/hunters/:id", async (req, res) => {
  */
 hunterRouter.delete("/hunters", async (req, res) => {
   try {
-    const name = req.query.name?.toString();
-    if (!name) {
+    //const filter = req.query?  req.query  : {};
+    let filter = {};
+    if (req.query.name) {
+      filter =  { name: req.query.name.toString() };
+    } else {
       res.status(400).send({
-        error: "Falta el parámetro de búsqueda 'name' en query string",
+        error: "No se ha especificado el nombre del cazador",
       });
-    }
-    const hunter = await Hunter.findOneAndDelete({
-      name: name,
-    });
+    } 
+    const hunter = await Hunter.findOneAndDelete(filter);
     if (hunter) {
       res.send(hunter);
     } else {
@@ -211,3 +176,5 @@ hunterRouter.delete("/hunters", async (req, res) => {
     res.status(500).send(error);
   }
 });
+
+

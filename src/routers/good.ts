@@ -22,7 +22,7 @@ goodRouter.post("/goods", async (req, res) => {
 goodRouter.get("/goods/:id", async (req, res) => {
   try {
     const good = await Good.findById(req.params.id);
-    if (good) { // Si se encuentra el bien, se devuelve
+    if (good) { 
       res.send(good);
     } else {
       res.status(404).send();
@@ -63,31 +63,9 @@ goodRouter.patch("/goods", async (req, res) => {
     const isValidUpdate = actualUpdates.every((update) => allowedUpdates.includes(update));
 
     if (!isValidUpdate) {
-      res.status(400).send({ error: "La actualización no está permitida" });
-    } else if (actualUpdates.includes("stock")) {
-      const stockValue = req.body.stock;
-      if (stockValue === undefined || stockValue === null || stockValue === "" || Number(stockValue) < 0) {
-        res.status(400).send({
-          error: "El stock no puede estar vacío ni ser menor que 0"
-        });
-      } else {
-        const updatedGood = await Good.findOneAndUpdate(
-          filter,
-          req.body,
-          {
-            new: true,
-            runValidators: true
-          }
-        );
-
-        if (updatedGood) {
-          res.send(updatedGood);
-        } else {
-          res.status(404).send({ 
-            error: "No se pudo actualizar el bien" 
-          });
-        }
-      }
+      res.status(400).send({ 
+        error: "La actualización no está permitida" 
+      });
     } else {
       const updatedGood = await Good.findOneAndUpdate(
         filter,
@@ -101,7 +79,9 @@ goodRouter.patch("/goods", async (req, res) => {
       if (updatedGood) {
         res.send(updatedGood);
       } else {
-        res.status(404).send({ error: "No se pudo actualizar el bien" });
+        res.status(404).send({ 
+          error: "No se pudo actualizar el bien" 
+        });
       }
     }
   } catch (error) {
@@ -125,15 +105,7 @@ goodRouter.patch("/goods/:id", async (req, res) => {
       res.status(400).send({
         error: "La actualización no está permitida",
       });
-
-    } else if (actualUpdates.includes("stock")) {
-      const stockValue = req.body.stock;
-      if (stockValue === undefined || stockValue === null || stockValue === "" || Number(stockValue) < 0) {
-        res.status(400).send({
-          error: "El stock no puede estar vacío ni ser menor que 0",
-        });
-      }
-    } else {
+    }  else {
       const good = await Good.findByIdAndUpdate(
         req.params.id,
         req.body,

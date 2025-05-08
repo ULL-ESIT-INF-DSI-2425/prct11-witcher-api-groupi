@@ -79,34 +79,6 @@ describe("GET /merchants/:id", () => {
   });
 });
 
-describe("GET /merchants/location/:location", () => {
-  test("Should get merchant by location", async () => {
-    const res = await request(app)
-      .get(`/merchants/location/${firstMerchant.location}`)
-      .expect(200);
-
-    expect(res.body.name).toBe(firstMerchant.name);
-  });
-
-  test("Should not find a merchant if location not found", async () => {
-    await request(app).get("/merchants/location/nose").expect(404);
-  });
-});
-
-describe("GET /merchants/type/:type", () => {
-  test("Should get merchant by type", async () => {
-    const res = await request(app)
-      .get(`/merchants/type/${firstMerchant.type}`)
-      .expect(200);
-
-    expect(res.body.name).toBe(firstMerchant.name);
-  });
-
-  test("Should return 404 if type not found", async () => {
-    await request(app).get("/merchants/type/Desconocido").expect(404);
-  });
-});
-
 describe("PATCH /merchants/:id", () => {
   test("Should update merchant by ID", async () => {
     const merchant = await Merchant.findOne({ name: firstMerchant.name });
@@ -200,9 +172,5 @@ describe("DELETE /merchants?name=", () => {
     await request(app)
       .delete("/merchants?name=Desconocido")
       .expect(404);
-  });
-
-  test("Should not delete a merchant if query missing", async () => {
-    await request(app).delete("/merchants").expect(400);
   });
 });

@@ -80,32 +80,6 @@ describe("GET /hunters/:id", () => {
   });
 });
 
-describe("GET /hunters/:location and /:race", () => {
-  test("Should get hunter by location", async () => {
-    const res = await request(app)
-      .get(`/hunters/location/${firstHunter.location}`)
-      .expect(200);
-
-    expect(res.body.name).toBe(firstHunter.name);
-  });
-
-  test("Should not find a hunter if location not found", async () => {
-    await request(app).get("/hunters/location/wherelocation").expect(404);
-  });
-
-  test("Should get hunter by race", async () => {
-    const res = await request(app)
-      .get(`/hunters/race/${firstHunter.race}`)
-      .expect(200);
-
-    expect(res.body.name).toBe(firstHunter.name);
-  });
-
-  test("Should not find a hunter if race not found", async () => {
-    await request(app).get("/hunters/race/holamundo").expect(404);
-  });
-});
-
 describe("PATCH /hunters/:id", () => {
   test("Should update hunter by ID", async () => {
     const hunter = await Hunter.findOne({ name: firstHunter.name });

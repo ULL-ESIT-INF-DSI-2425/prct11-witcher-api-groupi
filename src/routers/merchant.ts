@@ -19,7 +19,8 @@ merchantRouter.post("/merchants", async (req, res) => {
  */
 merchantRouter.get("/merchants", async (req, res) => {
   try {
-    const filter = req.query.name?{name: req.query.name.toString()} : {};
+    //const filter = req.query?  req.query  : {};
+    const filter = req.query.name?{name: req.query.name.toString()}:{};
     const merchant = await Merchant.find(filter);
     if (merchant.length > 0) {
       res.send(merchant);
@@ -46,46 +47,6 @@ merchantRouter.get("/merchants/:id", async (req, res) => {
         error: "No se encontró al mercader por id",
       });
     } 
-  } catch (error) {
-    res.status(500).send(error);
-  }
-});
-/**
- * Método para obtener mercaderes
- * @param location - Localización del mercader 
- */
-merchantRouter.get("/merchants/location/:location", async (req, res) => {
-  try {
-    const merchant = await Merchant.findOne({
-      location: req.params.location,
-    });
-    if (merchant) {
-      res.send(merchant);
-    } else {
-      res.status(404).send({
-        error: "No se encontró al mercader por localización",
-      });
-    }
-  } catch (error) {
-    res.status(500).send(error);
-  }
-});
-/**
- * Método para obtener mercaderes
- * @param type - Tipo del mercader 
- */
-merchantRouter.get("/merchants/type/:type", async (req, res) => {
-  try {
-    const merchant = await Merchant.findOne({
-      type: req.params.type,
-    });
-    if (merchant) {
-      res.send(merchant);
-    } else {
-      res.status(404).send({
-        error: "No se encontró al mercader por tipo",
-      });
-    }   
   } catch (error) {
     res.status(500).send(error);
   }
@@ -134,13 +95,15 @@ merchantRouter.patch("/merchants/:id", async (req, res) => {
  */
 merchantRouter.patch("/merchants", async (req, res) => {
   try {
-    const name = req.query.name?.toString();
-    if (!name) {
+    //const filter = req.query?  req.query  : {};
+    let filter = {};
+    if (req.query.name) {
+      filter =  { name: req.query.name.toString() };
+    } else {
       res.status(400).send({
-        error: "Falta el parámetro de búsqueda 'name' en query string",
+        error: "No se ha especificado el nombre del mercader",
       });
-    }
-
+    } 
     const allowedUpdates = ["name", "location", "type"];
     const actualUpdates = Object.keys(req.body);
     const isValidUpdate = actualUpdates.every((update) =>
@@ -153,9 +116,7 @@ merchantRouter.patch("/merchants", async (req, res) => {
       });
     } else {
       const merchant = await Merchant.findOneAndUpdate(
-        {
-          name: name,
-        },
+        filter,
         req.body,
         {
           new: true,
@@ -200,16 +161,16 @@ merchantRouter.delete("/merchants/:id", async (req, res) => {
  */
 merchantRouter.delete("/merchants", async (req, res) => {
   try {
-    const name = req.query.name?.toString();
-    if (!name) {
+    //const filter = req.query?  req.query  : {};
+    let filter = {};
+    if (req.query.name) {
+      filter =  { name: req.query.name.toString() };
+    } else {
       res.status(400).send({
-        error: "Falta el parámetro de búsqueda 'name' en query string",
+        error: "No se ha especificado el nombre del mercader",
       });
-    }
-    const merchant = await Merchant.findOneAndDelete({
-      name: name,
-    });
-
+    } 
+    const merchant = await Merchant.findOneAndDelete(filter)
     if (merchant) {
       res.send(merchant);
     } else {

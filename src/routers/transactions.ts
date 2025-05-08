@@ -1,32 +1,19 @@
 import express from 'express';
 import { Transaction } from '../models/transactions.js';
-import { Good } from '../models/good.js';
-
+//import { Good } from '../models/good.js';
+import { updateStock } from '../controllers/transactions.js'
 
 export const transactionRouter = express.Router();
 
-/**
- * Funcion que permite actualizar el stock segun compres, vendas o devuelvas bienes
- * @param goods - todos los bienes
- * @param type - tipo de la transaccion puede ser buy, sell o return
- */
-const updateStock = async (goods: { good: string; quantity: number }[], type : string) => {
-  for (const item of goods) {
-    const good = await Good.findById(item.good);
-    if (!good) throw new Error(`Good with ID ${item.good} not found`);
-    if (type === "buy") {
-      good.stock = good.stock - item.quantity;
-    } else if (type === "sell") {
-      good.stock = good.stock + item.quantity;
-    } else if (type === "return") {
-      good.stock = good.stock + item.quantity;
-    } else {
-      throw new Error(`A transaction can only be buy, sell or return`);
-    }
-    if (good.stock < 0) throw new Error(`Insufficient stock for good ${good.name}`);
-    await good.save();
+transactionRouter.post("/transactions", async (req, res) => {
+  try {
+    const transaction = new Transaction(req.body);
+    await transaction.save();
+    res.status(201).send(transaction);
+  } catch (error) {
+    res.status(500).send(error);
   }
-};
+});
 
 /**
  * Get de todas las transacciones de nuestra base de datos
