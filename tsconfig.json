@@ -2,7 +2,10 @@
   "exclude": [
     "./tests",
     "./node_modules",
-    "./dist"
+    "./dist",
+    "./coverage",
+    "node_modules/@types",
+    "vitest.config.ts"
   ],
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig to read more about this file */

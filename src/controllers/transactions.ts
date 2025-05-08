@@ -54,60 +54,72 @@ export const createTransaction = async (req, res) => {
   try {
     const { typeTrans, personName, goods } = req.body as BodyTransaction;
     if (!typeTrans || !personName || !Array.isArray(goods) || goods.length === 0) {
-      res.status(400).send('Alguno de los campos no ha sido especificado');
-    } else {
-      const consumer = typeTrans === 'buy' ? await Hunter.findOne({ name: personName }): await Merchant.findOne({ name: personName });
-      if (!consumer) {
-        res.status(404).send('No se ha encontrado ningún personaje con ese nombre');
-      } else {
-        const personType = typeTrans === 'buy' ? 'Hunter' : 'Merchant';
-        const transactionGoods: TransactionGood[] = [];
-        let totalImport = 0;
-        let totalQuantity = 0;
-        for (const item of goods) {
-          if (!item.name || typeof item.quantity !== 'number' || item.quantity <= 0) {
-            res.status(400).send('Nombre o cantidad de bien inválido');
-          }
-          const good = await Good.findOne({ name: item.name }) as GoodDocumentInterface | null;
-          if (!good) {
-            res.status(404).send(`El bien "${item.name}" no existe`);
-          } else {
-            transactionGoods.push({
-              good: good._id as Types.ObjectId,
-              quantity: item.quantity,
-            });
-            totalImport += good.value_in_crowns * item.quantity;
-            totalQuantity += item.quantity;
-          }
-        }
-        await updateStock(
-          transactionGoods.map(item => ({
-            good: item.good.toString(),
-            quantity: item.quantity,
-          })),
-          typeTrans
-        );
-        const newTransaction = new Transaction({
-          type: typeTrans,
-          personType,
-          personName,
-          goods: transactionGoods,
-          amount: totalQuantity,
-          totalImport,
-        });
-        await newTransaction.save();
-        res.status(201).json(newTransaction);
-      }
+      return res.status(400).send('Alguno de los campos no ha sido especificado');
     }
+    const consumer = typeTrans === 'buy'
+      ? await Hunter.findOne({ name: personName })
+      : await Merchant.findOne({ name: personName });
+
+    if (!consumer) {
+      return res.status(404).send('No se ha encontrado ningún personaje con ese nombre');
+    }
+    const personType = typeTrans === 'buy' ? 'Hunter' : 'Merchant';
+    const transactionGoods: TransactionGood[] = [];
+    let totalImport = 0;
+    let totalQuantity = 0;
+    for (const item of goods) {
+      if (!item.name || typeof item.quantity !== 'number' || item.quantity <= 0) {
+        return res.status(400).send('Nombre o cantidad de bien inválido');
+      }
+      let good = await Good.findOne({ name: item.name }) as GoodDocumentInterface | null;
+      if (!good) {
+        if (typeTrans === 'buy') {
+          return res.status(404).send(`El bien "${item.name}" no existe`);
+        } else {
+          good = new Good({
+            name: item.name,
+            description: "new bien",
+            weight: 35,
+            value_in_crowns: 10, 
+            stock: 100,
+          });
+          await good.save();
+        }
+      }
+      transactionGoods.push({
+        good: good._id as Types.ObjectId,
+        quantity: item.quantity,
+      });
+      totalImport += good.value_in_crowns * item.quantity;
+      totalQuantity += item.quantity;
+    }
+    await updateStock(
+      transactionGoods.map(item => ({
+        good: item.good.toString(),
+        quantity: item.quantity,
+      })),
+      typeTrans
+    );
+    const newTransaction = new Transaction({
+      type: typeTrans,
+      personType,
+      personName,
+      goods: transactionGoods,
+      amount: totalQuantity,
+      totalImport,
+    });
+    await newTransaction.save();
+    return res.status(201).json(newTransaction);
   } catch (error) {
     console.error(error);
-    res.status(500).send(`Error al crear la transacción: ${error instanceof Error ? error.message : error}`);
+    return res.status(500).send(`Error al crear la transacción: ${error instanceof Error ? error.message : error}`);
   }
 };
+
 /**
  * Funcion que permite actualizar una transaccion que usaremos en la ruta .patch de
  * las rutas de transacción
- */
+*/
 export const updateTransactionByID = async (req, res) => {
   try {
     const originalTransaction = await Transaction.findById(req.params.id);
