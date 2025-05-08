@@ -1,5 +1,8 @@
 import { Document, Schema, model } from 'mongoose';
 
+/**
+ * Interfaz para representar los atributos del bien
+ */
 export interface GoodDocumentInterface extends Document {
   name: string,
   description: string,
@@ -9,6 +12,9 @@ export interface GoodDocumentInterface extends Document {
   stock: number
 }
 
+/**
+ * Esquema del bien
+ */
 const GoodSchema = new Schema<GoodDocumentInterface>({
   name: {
     type: String,
@@ -48,4 +54,8 @@ const GoodSchema = new Schema<GoodDocumentInterface>({
     }
   }
 });
+
+/**
+ * Modelo del bien
+ */
 export const Good = model<GoodDocumentInterface>('Good', GoodSchema);

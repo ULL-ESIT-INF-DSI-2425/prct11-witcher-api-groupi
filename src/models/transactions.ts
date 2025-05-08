@@ -7,6 +7,9 @@ export interface TransactionGood {
   quantity: number;
 } 
 
+/**
+ * Interfaz de la transaccion
+ */
 interface TransactionDocumentInterface extends Document {
   date: Date;
   type: 'buy' | 'sell';
@@ -17,6 +20,9 @@ interface TransactionDocumentInterface extends Document {
   totalImport : number;
 }
 
+/**
+ * Esquema de la transaccion
+ */
 const TransactionSchema = new Schema<TransactionDocumentInterface>({
   date: {
     type: Date,
@@ -62,4 +68,7 @@ const TransactionSchema = new Schema<TransactionDocumentInterface>({
   }
 });
 
+/**
+ * Modelo de la transaccion
+ */
 export const Transaction = model<TransactionDocumentInterface>('Transaction', TransactionSchema);

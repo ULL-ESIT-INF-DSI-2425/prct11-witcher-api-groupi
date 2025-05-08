@@ -222,27 +222,36 @@ describe("transactions tests", () => {
     expect(patchRes.status).toBe(400);
     expect(patchRes.body.message).toContain(`Bien con nombre "NonExistentGood" no encontrado`);
   });
-test("PATCH /transactions - Should update a transaction using personName filter", async () => {
-  // POST inicial
+test("PATCH /transactions - should create a new good if it doesn't exist and transaction is type 'sell'", async () => {
+  // 1️⃣ Crea una transacción de tipo 'sell' con un bien existente
   const postRes = await request(app).post("/transactions").send({
     typeTrans: "sell",
-    personName: "Juan",
+    personName: "Juan", // Merchant
     goods: [{ name: "Espaditaa", quantity: 1 }]
   });
-  console.log("POST response:", postRes.status, postRes.body);
 
-  // PATCH usando personName
+  expect(postRes.status).toBe(201);
+
+  // 2️⃣ PATCH usando un bien nuevo que no existe aún
   const patchRes = await request(app)
     .patch("/transactions")
-    .query({ personName: "Juan" })
+    .query({ personName: "Juan" }) // filtro
     .send({
-      goods: [{ name: "Espaditaa", quantity: 2 }]
+      goods: [{ name: "NuevoBienPatch", quantity: 2 }]
     });
 
   console.log("PATCH response:", patchRes.status, patchRes.body);
 
+  // 3️⃣ Verificamos respuesta exitosa y actualización correcta
   expect(patchRes.status).toBe(200);
   expect(patchRes.body.data.amount).toBe(2);
-}); // haz push lee el chat
+  expect(patchRes.body.data.goods[0]).toHaveProperty("good");
+
+  // 4️⃣ Confirmamos que el nuevo bien fue creado en la base de datos
+  const createdGood = await Good.findOne({ name: "NuevoBienPatch" });
+  expect(createdGood).not.toBeNull();
+  expect(createdGood?.stock).toBe(100); // Stock inicial que definiste en el código
+});
+
 });
 

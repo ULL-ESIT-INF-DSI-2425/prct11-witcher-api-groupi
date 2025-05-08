@@ -1,12 +1,18 @@
 import { Document, Schema, model } from 'mongoose';
 import validator from 'validator';
 
+/**
+ * Interfaz del mercader
+ */
 export interface MerchantDocumentInterface extends Document {
   name: string,
   location: string,
   type?: 'Herrero' | 'Alquimista' | 'Mercader general'
 }
 
+/**
+ * Esquema del mercader
+ */
 const MerchantSchema = new Schema<MerchantDocumentInterface>({
   name: {
     type: String,
@@ -31,4 +37,8 @@ const MerchantSchema = new Schema<MerchantDocumentInterface>({
     enum:['Herrero','Alquimista','Mercader general'],
   }
 });
+
+/**
+ * Modelo del mercader
+ */
 export const Merchant = model<MerchantDocumentInterface>('Merchant', MerchantSchema);

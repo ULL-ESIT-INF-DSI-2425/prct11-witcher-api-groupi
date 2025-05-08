@@ -1,11 +1,18 @@
 import { Document, Schema, model } from 'mongoose';
 import validator from 'validator';
 
+/**
+ * Interfaz para representar al cazador
+ */
 export interface HunterDocumentInterface extends Document {
   name: string,
   location: string,
   race?: 'Humano' | 'Elfo' | 'Enano' | 'Hechicero'
 }
+
+/**
+ * Esquema del cazador
+ */
 const HunterSchema = new Schema<HunterDocumentInterface>({
   name: {
     type: String,
@@ -30,4 +37,8 @@ const HunterSchema = new Schema<HunterDocumentInterface>({
     enum:['Humano','Elfo','Enano','Hechicero'],
   }
 });
+
+/**
+ * Modelo del cazador
+ */
 export const Hunter = model<HunterDocumentInterface>('Hunter', HunterSchema);

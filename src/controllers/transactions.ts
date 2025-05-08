@@ -129,7 +129,15 @@ export const updateTransactionByID = async (req, res) => {
         message: 'Transacción no encontrada'
       });
     }
-    const revertType = originalTransaction.type === 'buy' ? 'sell' : originalTransaction.type === 'sell' ? 'buy' :'sell';
+
+    const revertType =
+      originalTransaction.type === 'buy'
+        ? 'sell'
+        : originalTransaction.type === 'sell'
+        ? 'buy'
+        : 'sell';
+
+    // Revertir stock de la transacción original
     await updateStock(
       originalTransaction.goods.map(item => ({
         good: item.good.toString(),
@@ -137,17 +145,34 @@ export const updateTransactionByID = async (req, res) => {
       })),
       revertType
     );
+
     const newGoods: TransactionGood[] = [];
     let newTotalImport = 0;
     let newAmount = 0;
+
     for (const item of req.body.goods) {
-      const goodDoc = await Good.findOne({ name: item.name }) as GoodDocumentInterface | null;
+      let goodDoc = await Good.findOne({ name: item.name }) as GoodDocumentInterface | null;
+
       if (!goodDoc) {
-        return res.status(400).json({
-          success: false,
-          message: `Bien con nombre "${item.name}" no encontrado`
-        });
+        if (originalTransaction.type === 'sell') {
+          // ✅ Crear automáticamente si es una venta
+          goodDoc = new Good({
+            name: item.name,
+            description: "Bien creado automáticamente al actualizar transacción",
+            material: "Desconocido",
+            weight: 30,
+            value_in_crowns: 10,
+            stock: 100
+          });
+          await goodDoc.save();
+        } else {
+          return res.status(400).json({
+            success: false,
+            message: `Bien con nombre "${item.name}" no encontrado`
+          });
+        }
       }
+
       newGoods.push({
         good: goodDoc._id as Types.ObjectId,
         quantity: item.quantity
@@ -156,7 +181,17 @@ export const updateTransactionByID = async (req, res) => {
       newTotalImport += goodDoc.value_in_crowns * item.quantity;
       newAmount += item.quantity;
     }
-    await updateStock(req.body.goods, originalTransaction.type);
+
+    // ✅ Usar los IDs ya recolectados para actualizar stock
+    await updateStock(
+      newGoods.map(item => ({
+        good: item.good.toString(),
+        quantity: item.quantity
+      })),
+      originalTransaction.type
+    );
+
+    // Actualizar la transacción
     const updatedTransaction = await Transaction.findByIdAndUpdate(
       req.params.id,
       {
@@ -170,16 +205,19 @@ export const updateTransactionByID = async (req, res) => {
       },
       { new: true, runValidators: true }
     );
-    res.status(200).json({
+
+    return res.status(200).json({
       success: true,
       data: updatedTransaction
     });
+
   } catch (error) {
     console.error('Error al actualizar transacción:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Error al actualizar transacción',
       error: error instanceof Error ? error.message : error
     });
   }
 };
+
