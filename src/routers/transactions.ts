@@ -1,7 +1,7 @@
 import express from 'express';
 import { Transaction } from '../models/transactions.js';
 import { updateStock, createTransaction, updateTransactionByID } from '../controllers/transactions.js'
-
+import { Types } from 'mongoose';
 export const transactionRouter = express.Router();
 
 transactionRouter.post('/transactions', async (req, res) => {
@@ -133,7 +133,29 @@ transactionRouter.patch('/transactions/:id', async (req, res) => {
   await updateTransactionByID(req, res);
 });
 
-
+/**
+ * Funcion para poder hacer un patch no solo por id sino por 
+ * otros atributos
+ */
+transactionRouter.patch('/transactions', async (req, res) => {
+  try {
+    const filter = req.query;
+    if (!filter || Object.keys(filter).length === 0) {
+      res.status(400).send({ error: "No filter attribute specified" });
+    }
+    const transactions = await Transaction.find(filter);
+    if (transactions.length === 0) {
+      res.status(404).send({ error: "No matching transactions found" });
+    }
+    const transaction = transactions[0];
+    (req.params as { id: string }).id = (transaction._id as Types.ObjectId).toString();
+    await updateTransactionByID(req, res);
+  } catch (error) {
+    res.status(500).send({
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+});
 
 
 
