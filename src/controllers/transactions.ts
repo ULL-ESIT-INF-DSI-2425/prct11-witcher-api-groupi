@@ -137,14 +137,21 @@ export const updateTransactionByID = async (req, res) => {
         ? 'buy'
         : 'sell';
 
-    // Revertir stock de la transacción original
-    await updateStock(
-      originalTransaction.goods.map(item => ({
-        good: item.good.toString(),
-        quantity: item.quantity
-      })),
-      revertType
-    );
+    // ✅ Intentamos revertir el stock anterior, pero capturamos errores si no es posible
+    try {
+      await updateStock(
+        originalTransaction.goods.map(item => ({
+          good: item.good.toString(),
+          quantity: item.quantity
+        })),
+        revertType
+      );
+    } catch (err) {
+      return res.status(400).json({
+        success: false,
+        message: `No se pudo revertir el stock anterior: ${(err as Error).message}`
+      });
+    }
 
     const newGoods: TransactionGood[] = [];
     let newTotalImport = 0;
@@ -155,7 +162,7 @@ export const updateTransactionByID = async (req, res) => {
 
       if (!goodDoc) {
         if (originalTransaction.type === 'sell') {
-          // ✅ Crear automáticamente si es una venta
+          // ✅ Crear bien automáticamente si es una venta
           goodDoc = new Good({
             name: item.name,
             description: "Bien creado automáticamente al actualizar transacción",
@@ -182,7 +189,7 @@ export const updateTransactionByID = async (req, res) => {
       newAmount += item.quantity;
     }
 
-    // ✅ Usar los IDs ya recolectados para actualizar stock
+    // ✅ Usamos los _id reales para evitar errores de "bien no encontrado"
     await updateStock(
       newGoods.map(item => ({
         good: item.good.toString(),
@@ -191,7 +198,7 @@ export const updateTransactionByID = async (req, res) => {
       originalTransaction.type
     );
 
-    // Actualizar la transacción
+    // ✅ Actualizar la transacción en la base de datos
     const updatedTransaction = await Transaction.findByIdAndUpdate(
       req.params.id,
       {
@@ -220,4 +227,5 @@ export const updateTransactionByID = async (req, res) => {
     });
   }
 };
+
 

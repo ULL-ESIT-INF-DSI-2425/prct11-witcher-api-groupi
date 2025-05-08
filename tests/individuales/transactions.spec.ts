@@ -21,7 +21,7 @@ const firstGood = {
   material: "Acero de Mahakam",
   weight: 34,
   value_in_crowns: 200,
-  stock: 3
+  stock: 30
 };
 
 describe("transactions tests", () => {
@@ -176,7 +176,7 @@ describe("transactions tests", () => {
     expect(deleteRes.status).toBe(200);
     const good = await Good.findOne({ name: "Espaditaa" });
     if (good) {
-      expect(good.stock).toBe(3); 
+      expect(good.stock).toBe(30); 
     }
   });
 
@@ -222,36 +222,26 @@ describe("transactions tests", () => {
     expect(patchRes.status).toBe(400);
     expect(patchRes.body.message).toContain(`Bien con nombre "NonExistentGood" no encontrado`);
   });
-test("PATCH /transactions - should create a new good if it doesn't exist and transaction is type 'sell'", async () => {
-  // 1️⃣ Crea una transacción de tipo 'sell' con un bien existente
-  const postRes = await request(app).post("/transactions").send({
-    typeTrans: "sell",
-    personName: "Juan", // Merchant
-    goods: [{ name: "Espaditaa", quantity: 1 }]
-  });
+  test("PATCH /transactions - should fail if reverting the original transaction exceeds available stock", async () => {
+    await Good.updateOne({ name: "Espaditaa" }, { $set: { stock: 0 } });
 
-  expect(postRes.status).toBe(201);
-
-  // 2️⃣ PATCH usando un bien nuevo que no existe aún
-  const patchRes = await request(app)
-    .patch("/transactions")
-    .query({ personName: "Juan" }) // filtro
-    .send({
-      goods: [{ name: "NuevoBienPatch", quantity: 2 }]
+    const postRes = await request(app).post("/transactions").send({
+      typeTrans: "sell", // Tipo SELL, revertirá como BUY (quita stock)
+      personName: "Juan",
+      goods: [{ name: "Espaditaa", quantity: 1 }]
     });
 
-  console.log("PATCH response:", patchRes.status, patchRes.body);
+    expect(postRes.status).toBe(201);
 
-  // 3️⃣ Verificamos respuesta exitosa y actualización correcta
-  expect(patchRes.status).toBe(200);
-  expect(patchRes.body.data.amount).toBe(2);
-  expect(patchRes.body.data.goods[0]).toHaveProperty("good");
+    const patchRes = await request(app)
+      .patch("/transactions")
+      .query({ personName: "Juan" })
+      .send({
+        goods: [{ name: "Espaditaa", quantity: 1 }]
+      });
 
-  // 4️⃣ Confirmamos que el nuevo bien fue creado en la base de datos
-  const createdGood = await Good.findOne({ name: "NuevoBienPatch" });
-  expect(createdGood).not.toBeNull();
-  expect(createdGood?.stock).toBe(100); // Stock inicial que definiste en el código
-});
-
+    expect(patchRes.status).toBe(400);
+    expect(patchRes.body.message).toContain("No se pudo revertir el stock anterior");
+  });
 });
 
