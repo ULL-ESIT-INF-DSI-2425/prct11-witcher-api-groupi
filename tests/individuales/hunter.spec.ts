@@ -1,7 +1,7 @@
 import { describe, test, beforeEach, expect } from "vitest";
 import request from "supertest";
-import { app } from "../src/api.js"
-import { Hunter } from "../src/models/hunter.js"
+import { app } from "../../src/api.js"
+import { Hunter } from "../../src/models/hunter.js"
 
 const firstHunter = {
   name: "Adolfo",

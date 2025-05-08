@@ -1,7 +1,7 @@
 import { describe, test, beforeEach, expect } from "vitest";
 import request from "supertest";
-import { app } from "../src/api.js"
-import { Good } from "../src/models/good.js"
+import { app } from "../../src/api.js"
+import { Good } from "../../src/models/good.js"
 
 const firstGood = {
   name: "Espada de Estela",
