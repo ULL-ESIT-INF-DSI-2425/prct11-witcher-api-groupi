@@ -1,134 +1,213 @@
 import request from 'supertest';
-import { describe, test, beforeAll, afterAll, expect } from 'vitest';
+import { describe, test, beforeEach, expect } from 'vitest';
 import { app } from '../../src/api.js';
 import { Good } from '../../src/models/good.js';
 import { Hunter } from '../../src/models/hunter.js';
-import { Merchant } from '../../src/models/merchant.js';
-import { Transaction } from '../../src/models/transactions.js';
-import { Types } from 'mongoose';
+
+const firstHunter = {
+  name: "Manolo",
+  location: "Suecia",
+  race: "Humano"
+};
+
+const firstGood = {
+  name: "Espaditaa",
+  description: "Es una espadita de plata",
+  material: "Acero de Mahakam",
+  weight: 34,
+  value_in_crowns: 200,
+  stock: 3
+};
+
+describe("POST /transactions", () => {
+  beforeEach(async () => {
+    console.log("🔁 Ejecutando beforeEach...");
 
 
-describe('Transaction Tests', () => {
-  let goodId: Types.ObjectId;
-
-  beforeAll(async () => {
-    // Limpiar las colecciones antes de los tests
-    await Good.deleteMany();
     await Hunter.deleteMany();
-    await Merchant.deleteMany();
-    await Transaction.deleteMany();
+    await Good.deleteMany();
 
-    // Crear un bien para usar en las transacciones
-    const good = new Good({
-      name: 'Espada de Estela',
-      description: 'Es una espadita de plata',
-      material: 'Acero de Mahakam',
-      weight: 34,
-      value_in_crowns: 140,
-      stock: 3,
-    });
-    await good.save();
-    goodId = good._id as Types.ObjectId;
-
-    // Crear un cazador para usar en las transacciones
-    const hunter = new Hunter({
-      name: 'Geralt',
-      age: 30,
-      location: 'Kaer Morhen',
-    });
+    const hunter = new Hunter(firstHunter);
     await hunter.save();
+    console.log("✅ Hunter creado:", hunter.name);
+
+    const good = new Good(firstGood);
+    await good.save();
+    console.log("✅ Good creado:", good.name);
+  });
+/*
+  test("🧪 Verifica que Hunter y Good existen antes del POST", async () => {
+    const hunter = await Hunter.findOne({ name: "Manolo" });
+    const good = await Good.findOne({ name: "Espaditaa" });
+
+    console.log("🧩 Hunter en DB:", hunter);
+    console.log("🧩 Good en DB:", good);
+
+    expect(hunter).not.toBeNull();
+    expect(good).not.toBeNull();
   });
 
-  afterAll(async () => {
-    // Limpiar las colecciones después de los tests
-    await Good.deleteMany();
-    await Hunter.deleteMany();
-    await Merchant.deleteMany();
-    await Transaction.deleteMany();
-  });
-
-  test('POST /transactions - should create a transaction', async () => {
-    const response = await request(app)
-      .post('/transactions')
+  test("✅ POST /transactions - should create a valid transaction", async () => {
+    const res = await request(app)
+      .post("/transactions")
       .send({
-        date: new Date(),
-        type: 'buy',
-        amount: 1,
-        personType: 'Hunter',
-        personName: 'Geralt',
+        typeTrans: "buy",
+        personName: "Manolo",
         goods: [
           {
-            good: goodId,
-            quantity: 1,
-          },
-        ],
-        totalImport: 140,
+            name: "Espaditaa",
+            quantity: 1
+          }
+        ]
       });
 
-    expect(response.status).toBe(201);
-    expect(response.body).toHaveProperty('_id');
-    expect(response.body.type).toBe('buy');
-    expect(response.body.personName).toBe('Geralt');
-    expect(response.body.goods[0].good).toBe(goodId);
-    expect(response.body.totalImport).toBe(140);
+    console.log("📥 Respuesta POST:", res.status, res.body);
+
+    expect(res.status).toBe(201);
+    expect(res.body).toHaveProperty("_id");
+    expect(res.body.type).toBe("buy");
+    expect(res.body.personName).toBe("Manolo");
+    expect(res.body.totalImport).toBe(200);
+    expect(res.body.goods[0].quantity).toBe(1);
+  });*/
+  
+describe("POST /transactions", () => {
+  test("should create a valid transaction", async () => {
+    const res = await request(app).post("/transactions").send({
+      typeTrans: "buy",
+      personName: "Geralt",
+      goods: [{ name: "Espada de plata", quantity: 1 }]
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.personName).toBe("Geralt");
+    expect(res.body.amount).toBe(1);
+    expect(res.body.totalImport).toBe(100);
   });
 
-  test('GET /transactions - should retrieve all transactions', async () => {
-    const response = await request(app).get('/transactions');
-    expect(response.status).toBe(200);
-    expect(Array.isArray(response.body)).toBe(true);
-    expect(response.body.length).toBeGreaterThan(0);
+  test("should fail with invalid good", async () => {
+    const res = await request(app).post("/transactions").send({
+      typeTrans: "buy",
+      personName: "Geralt",
+      goods: [{ name: "Inexistente", quantity: 1 }]
+    });
+
+    expect(res.status).toBe(404);
   });
 
-  test('GET /transactions/:id - should retrieve a transaction by ID', async () => {
-    const transaction = await Transaction.findOne({ personName: 'Geralt' });
-    const response = await request(app).get(`/transactions/${transaction?._id}`);
-    expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty('_id', transaction?._id as Types.ObjectId);
-    expect(response.body.personName).toBe('Geralt');
+  test("should fail with invalid hunter", async () => {
+    const res = await request(app).post("/transactions").send({
+      typeTrans: "buy",
+      personName: "Yennefer",
+      goods: [{ name: "Espada de plata", quantity: 1 }]
+    });
+
+    expect(res.status).toBe(404);
+  });
+});
+
+describe("GET /transactions", () => {
+  test("should retrieve all transactions", async () => {
+    const res = await request(app).get("/transactions").expect(200);
+    expect(res.body.length).toBeGreaterThan(0);
   });
 
-  test('PATCH /transactions/:id - should update a transaction', async () => {
-    const transaction = await Transaction.findOne({ personName: 'Geralt' });
-    const response = await request(app)
-      .patch(`/transactions/${transaction?._id}`)
-      .send({
-        type: 'sell',
-        totalImport: 200,
-      });
+  test("should return 404 with unmatched query", async () => {
+    const res = await request(app).get("/transactions?personName=Triss");
+    expect(res.status).toBe(404);
+  });
+});
 
-    expect(response.status).toBe(200);
-    expect(response.body.type).toBe('sell');
-    expect(response.body.totalImport).toBe(200);
+describe("GET /transactions/:id", () => {
+  test("should retrieve transaction by ID", async () => {
+    const res = await request(app).get(`/transactions/${transactionId}`);
+    expect(res.status).toBe(200);
+    expect(res.body._id).toBe(transactionId);
   });
 
-  test('DELETE /transactions/:id - should delete a transaction', async () => {
-    const transaction = await Transaction.findOne({ personName: 'Geralt' });
-    const response = await request(app).delete(`/transactions/${transaction?._id}`);
-    expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty('_id', transaction?._id as Types.ObjectId);
-
-    const deletedTransaction = await Transaction.findById(transaction?._id);
-    expect(deletedTransaction).toBeNull();
+  test("should return 404 if transaction not found", async () => {
+    const res = await request(app).get("/transactions/507f1f77bcf86cd799439011");
+    expect(res.status).toBe(404);
   });
 
-  test('POST /transactions - should fail with invalid data', async () => {
-    const response = await request(app)
-      .post('/transactions')
-      .send({
-        type: 'invalid_type', // Tipo no válido
-        amount: -1, // Cantidad negativa
-        personType: 'Hunter',
-        personName: 'Geralt',
-        goods: [
-          {
-            good: goodId,
-            quantity: 1,
-          },
-        ],
-        totalImport: 140,
-      });
-
-    expect(response.status).toBe(400);
+  test("should return 500 with invalid ID format", async () => {
+    const res = await request(app).get("/transactions/invalid-id");
+    expect(res.status).toBe(500);
   });
+});
+
+describe("GET /transactions/date/:date", () => {
+  test("should return transactions for a valid date", async () => {
+    const today = new Date().toISOString().slice(0, 10);
+    const res = await request(app).get(`/transactions/date/${today}`);
+    expect(res.status).toBe(200);
+    expect(res.body.length).toBeGreaterThan(0);
+  });
+
+  test("should return 400 for invalid date", async () => {
+    const res = await request(app).get("/transactions/date/not-a-date");
+    expect(res.status).toBe(400);
+  });
+
+  test("should return 400 if no transactions that day", async () => {
+    const res = await request(app).get("/transactions/date/1900-01-01");
+    expect(res.status).toBe(400);
+  });
+});
+
+describe("PATCH /transactions/:id", () => {
+  test("should update the transaction", async () => {
+    const res = await request(app).patch(`/transactions/${transactionId}`).send({
+      goods: [{ name: "Espada de plata", quantity: 1 }]
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.amount).toBe(1);
+    expect(res.body.data.totalImport).toBe(100);
+  });
+
+  test("should fail with invalid good", async () => {
+    const res = await request(app).patch(`/transactions/${transactionId}`).send({
+      goods: [{ name: "Ficticio", quantity: 1 }]
+    });
+
+    expect(res.status).toBe(400);
+  });
+
+  test("should return 404 if transaction not found", async () => {
+    const res = await request(app).patch("/transactions/507f1f77bcf86cd799439011").send({
+      goods: [{ name: "Espada de plata", quantity: 1 }]
+    });
+
+    expect(res.status).toBe(404);
+  });
+});
+
+describe("DELETE /transactions/:id", () => {
+  test("should delete the transaction", async () => {
+    const res = await request(app).delete(`/transactions/${transactionId}`);
+    expect(res.status).toBe(200);
+
+    const check = await Transaction.findById(transactionId);
+    expect(check).toBeNull();
+  });
+
+  test("should return 404 if not found", async () => {
+    const res = await request(app).delete("/transactions/507f1f77bcf86cd799439011");
+    expect(res.status).toBe(404);
+  });
+});
+
+describe("DELETE /transactions?personName=Geralt", () => {
+  test("should delete transactions by query", async () => {
+    const res = await request(app).delete("/transactions?personName=Geralt");
+    expect(res.status).toBe(200);
+    expect(res.body.message).toContain("Se eliminaron");
+  });
+
+  test("should return 404 if no transactions match", async () => {
+    const res = await request(app).delete("/transactions?personName=NoExiste");
+    expect(res.status).toBe(404);
+  });
+});
 });
