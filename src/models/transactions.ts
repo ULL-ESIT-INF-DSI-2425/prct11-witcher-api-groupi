@@ -1,22 +1,21 @@
 import { Document, Schema, model } from 'mongoose';
-import { HunterDocumentInterface } from "./hunter.js"
-import { MerchantDocumentInterface } from './merchant.js';
-import { Good, GoodDocumentInterface } from './good.js';
+import { GoodDocumentInterface } from './good.js';
+import { Types } from 'mongoose'
 
-interface TransactionGood {
-  good: Schema.Types.ObjectId | GoodDocumentInterface;
+export interface TransactionGood {
+  good: Types.ObjectId | GoodDocumentInterface;
   quantity: number;
 } 
 
 interface TransactionDocumentInterface extends Document {
   date: Date;
-  type: 'buy' | 'sell' | 'return';
+  type: 'buy' | 'sell';
   amount: number;
   personType: 'Hunter' | 'Merchant';
-  personName: String;
+  personName: string;
   goods: TransactionGood[];
   totalImport : number;
-  calculateTotalImport() : Promise<number>; // Total del importe de la transacción
+  //calculateTotalImport() : Promise<number>; 
 }
 
 const TransactionSchema = new Schema<TransactionDocumentInterface>({
@@ -28,7 +27,7 @@ const TransactionSchema = new Schema<TransactionDocumentInterface>({
   amount: {
     type: Number,
     required: true,
-    min: 1, //Necesitas comprar al menos 1 bien
+    min: 1, 
   },
   type: {
     type: String,
@@ -60,10 +59,11 @@ const TransactionSchema = new Schema<TransactionDocumentInterface>({
   ],
   totalImport: {
     type: Number,
-    default: 0, // El importe total no puede ser negativo
+    default: 0, 
   }
 });
 
+/*
 TransactionSchema.methods.calculateTotalImport = async function (): Promise<number> {
   let total = 0;
   for (const item of this.goods) {
@@ -76,5 +76,6 @@ TransactionSchema.methods.calculateTotalImport = async function (): Promise<numb
   this.totalImport = total;
   return total;
 };
+*/
 
 export const Transaction = model<TransactionDocumentInterface>('Transaction', TransactionSchema);
